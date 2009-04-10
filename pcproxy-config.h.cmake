@@ -1,0 +1,3 @@
+#cmakedefine DEBUG 1
+
+#define PREFIX_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
