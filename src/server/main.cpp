@@ -3,7 +3,8 @@
 #include <execinfo.h>
 #include <cstdlib>
 
-#include "cardreader.h"
+#include "phoenix.h"
+#include "cardreader_config.h"
 #include "debug.h"
 
 static void PCProxySignalHandler(int signal) {
@@ -34,9 +35,9 @@ void enableSignalHandling() {
 }
 
 int main(int argc, char *argv[]) {
-	std::cout << "Hello World..." << std::endl;
 	enableSignalHandling();
-	PCProxy::CardReader reader;
+	PCProxy::Phoenix reader(PCProxy::CardReaderConfig("aaa.conf"));
+	reader.reset();
 
 	return 0;
 }
