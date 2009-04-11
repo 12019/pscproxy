@@ -13,7 +13,7 @@
 #include "debug.h"
 
 #define _POSIX_SOURCE 1
-using namespace PCProxy;
+using namespace PSProxy;
 
 Phoenix::Phoenix(CardReaderConfig const &config)
 : CardReader(config), maxBufferLen(512) {

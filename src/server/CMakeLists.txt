@@ -1,8 +1,8 @@
-include_directories(${PCPROXY_SOURCE_DIR}/src/lib/cardreader)
+include_directories(${PSPROXY_SOURCE_DIR}/src/lib/cardreader)
 
-set(PCPROXY_SERVER_SRCS
+set(PSPROXY_SERVER_SRCS
 	main.cpp)
 
-add_executable(pcproxy_server ${PCPROXY_SERVER_SRCS})
-target_link_libraries(pcproxy_server pcproxy_cardreader)
-install(TARGETS pcproxy_server DESTINATION bin)
+add_executable(psproxy_server ${PSPROXY_SERVER_SRCS})
+target_link_libraries(psproxy_server psproxy_cardreader)
+install(TARGETS psproxy_server DESTINATION bin)

@@ -3,7 +3,7 @@
 #include "cardreader.h"
 #include "debug.h"
 
-using namespace PCProxy;
+using namespace PSProxy;
 
 CardReader::CardReader(CardReaderConfig const &initConfig)
 : config(initConfig) {

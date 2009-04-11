@@ -1,6 +1,6 @@
 #ifndef SEASON_H
 #define SEASON_H
-namespace PCProxy {
+namespace PSProxy {
 	class Season {
 		public:
 			Season();

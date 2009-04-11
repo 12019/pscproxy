@@ -7,7 +7,7 @@
 #include "cardreader_config.h"
 #include "debug.h"
 
-static void PCProxySignalHandler(int signal) {
+static void PSProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
 	if(SIGSEGV == signal || SIGINT == signal || SIGTERM == signal) {
@@ -26,17 +26,17 @@ static void PCProxySignalHandler(int signal) {
 }
 
 void enableSignalHandling() {
-	signal(SIGSEGV, PCProxySignalHandler);
-	signal(SIGINT,  PCProxySignalHandler);
-	signal(SIGTERM, PCProxySignalHandler);
-	signal(SIGUSR1, PCProxySignalHandler);
+	signal(SIGSEGV, PSProxySignalHandler);
+	signal(SIGINT,  PSProxySignalHandler);
+	signal(SIGTERM, PSProxySignalHandler);
+	signal(SIGUSR1, PSProxySignalHandler);
 	signal(SIGPIPE, SIG_IGN);
 
 }
 
 int main(int argc, char *argv[]) {
 	enableSignalHandling();
-	PCProxy::Phoenix reader(PCProxy::CardReaderConfig("aaa.conf"));
+	PSProxy::Phoenix reader(PSProxy::CardReaderConfig("aaa.conf"));
 	reader.reset();
 
 	return 0;

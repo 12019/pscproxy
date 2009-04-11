@@ -3,6 +3,6 @@
 
 int main(int argc, char *argv[]) {
 	std::cout << "Hello world!!" << std::endl;
-	PCProxy::Season season;
+	PSProxy::Season season;
 	return 0;
 }

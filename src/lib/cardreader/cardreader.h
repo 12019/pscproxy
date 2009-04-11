@@ -5,7 +5,7 @@
 
 #include "cardreader_config.h"
 
-namespace PCProxy {
+namespace PSProxy {
 	typedef std::vector<unsigned char> Data_t;
 	class CardReader {
 		public:

@@ -1,8 +1,8 @@
-include_directories(${PCPROXY_SOURCE_DIR}/src/lib/season)
+include_directories(${PSPROXY_SOURCE_DIR}/src/lib/season)
 
-set(PCPROXY_CLIENT_SRCS
+set(PSPROXY_CLIENT_SRCS
 	main.cpp)
 
-add_executable(pcproxy_client ${PCPROXY_CLIENT_SRCS})
-target_link_libraries(pcproxy_client pcproxy_season)
-install(TARGETS pcproxy_client DESTINATION bin)
+add_executable(psproxy_client ${PSPROXY_CLIENT_SRCS})
+target_link_libraries(psproxy_client psproxy_season)
+install(TARGETS psproxy_client DESTINATION bin)

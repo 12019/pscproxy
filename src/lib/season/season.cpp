@@ -1,7 +1,7 @@
 #include <iostream>
 #include "season.h"
 
-using namespace PCProxy;
+using namespace PSProxy;
 
 Season::Season() {
 	std::cout << "Creating Season instance..." << std::endl;

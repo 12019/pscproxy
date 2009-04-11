@@ -1,7 +1,7 @@
 #include "cardreader_config.h"
 #include "debug.h"
 
-using namespace PCProxy;
+using namespace PSProxy;
 
 CardReaderConfig::CardReaderConfig(std::string const &file) {
 	pDebug("%s\n", "Creating instance of CardreaderConfig");

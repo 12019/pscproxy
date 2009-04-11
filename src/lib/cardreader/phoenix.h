@@ -3,7 +3,7 @@
 
 #include "cardreader.h"
 
-namespace PCProxy {
+namespace PSProxy {
 	class Phoenix : public CardReader {
 		public:
 			Phoenix(CardReaderConfig const &config);
