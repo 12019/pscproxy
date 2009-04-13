@@ -24,7 +24,6 @@ namespace PSProxy {
 			unsigned int timeoutDelay;
 
 			int fileDescriptor;
-			
 	};
 }
 #endif // CARDREADER_H

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <exception>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -21,7 +22,7 @@ Phoenix::Phoenix(CardReaderConfig const &config)
 	dataTXDelay = commandDelay = 2e5;
 	timeoutDelay = 1e6;
 
-	init();
+	init2();
 }
 
 void Phoenix::init() {
@@ -94,42 +95,39 @@ void Phoenix::init() {
 
 void Phoenix::init2() {
 	// This version of ttyS* initialization is currently not used. See init()
-	struct termios oldtio,newtio;
+	struct termios ios;
 	int i = 0;
 	
-	if(0 > (fileDescriptor = open(config.getDevFilename(), O_RDWR | O_NOCTTY))) {
+	if(0 > (fileDescriptor = open(config.getDevFilename(), O_RDWR | O_NOCTTY | O_SYNC))) {
 		perror("CardReader: ");
 		throw std::exception(); // TODO: Implement exceptions
 	}
 	pDebug("i=%d\n", i);
-	if(i = tcgetattr(fileDescriptor, &oldtio)) {
+	if((i = tcgetattr(fileDescriptor, &ios))) {
+		perror("CardReader: ");
+		throw std::exception(); // TODO: Implement exceptions
+	}
+
+	cfsetispeed(&ios, B9600);
+	cfsetospeed(&ios, B9600);
+	ios.c_cflag |= (CLOCAL | CREAD);
+	ios.c_cflag &= ~PARENB;
+	ios.c_cflag &= ~CSTOPB;
+	ios.c_cflag &= ~CSIZE;
+	ios.c_cflag |= CS8;
+	ios.c_cflag &= ~CRTSCTS;
+	cfmakeraw(&ios);
+
+	pDebug("i=%d\n", i);
+	if((i = tcsetattr(fileDescriptor,TCSANOW,&ios))) {
 		perror("CardReader: ");
 		throw std::exception(); // TODO: Implement exceptions
 	}
 	pDebug("i=%d\n", i);
-	bzero(&newtio, sizeof(newtio));
-	newtio.c_cflag = B38400 | CRTSCTS | CS8 | CLOCAL | CREAD;
-	newtio.c_iflag = IGNPAR | ICRNL;
-	newtio.c_oflag = 0;
-	newtio.c_lflag = ICANON;
-	if(i = tcflush(fileDescriptor, TCIFLUSH)) {
-		perror("CardReader: ");
-		throw std::exception(); // TODO: Implement exceptions
-	}
-	pDebug("i=%d\n", i);
-	if(i = tcsetattr(fileDescriptor,TCSANOW,&newtio)) {
-		perror("CardReader: ");
-		throw std::exception(); // TODO: Implement exceptions
-	}
-	pDebug("i=%d\n", i);
-	
-	if(i = tcgetattr(fileDescriptor, &oldtio)) {
-		perror("CardReader: ");
-		throw std::exception(); // TODO: Implement exceptions
-	}
 }
 
 Phoenix::~Phoenix() {
+	close(fileDescriptor);
 }
 
 Data_t const &Phoenix::reset() {

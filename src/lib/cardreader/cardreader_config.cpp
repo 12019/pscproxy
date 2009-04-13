@@ -4,9 +4,10 @@
 using namespace PSProxy;
 
 CardReaderConfig::CardReaderConfig(std::string const &file) {
-	pDebug("%s\n", "Creating instance of CardreaderConfig");
+	pDebug("%s\n", "Creating instance of CardReaderConfig");
 
 	devFilename = "/dev/ttyS0";
+	//devFilename = "/dev/ttyUSB0";
 }
 
 CardReaderConfig::~CardReaderConfig() {
