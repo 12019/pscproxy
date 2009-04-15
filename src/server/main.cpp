@@ -5,6 +5,7 @@
 
 #include "phoenix.h"
 #include "cardreader_config.h"
+#include "server_socket.h"
 #include "debug.h"
 
 static void PSProxySignalHandler(int signal) {
@@ -36,6 +37,14 @@ void enableSignalHandling() {
 
 int main(int argc, char *argv[]) {
 	enableSignalHandling();
+
+	PSProxy::ServerSocket socket(10000);
+	do {
+		if(socket.clientWaitingForConnection()) {
+			pDebug("%s\n", "Client is waiting for a connection!");
+		}
+	} while(1);
+	return 0;
 	PSProxy::Phoenix reader(PSProxy::CardReaderConfig("aaa.conf"));
 	reader.reset();
 

@@ -11,7 +11,7 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 
 #include "debug.h"
 #include "season.h"
-#include "socket.h"
+#include "client_socket.h"
 
 int main(int argc, char *argv[]) {
 #ifdef HAVE_GNUTLS
@@ -20,7 +20,9 @@ int main(int argc, char *argv[]) {
 #endif // HAVE_GNUTLS
 
 	std::cout << "Hello world!!" << std::endl;
-	PSProxy::Socket socket;
+	PSProxy::ClientSocket socket("127.0.0.1", 10000);
+	return 0;
+
 	PSProxy::Season season(PSProxy::SeasonConfig("~/.psproxy-client.conf"));
 
 	while(!season.getLines2()) {
