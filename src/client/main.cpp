@@ -19,7 +19,11 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 static void PSProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
-	if(SIGSEGV == signal || SIGINT == signal || SIGTERM == signal) {
+	if(SIGINT == signal) {
+		exit(0);
+	}
+
+	if(SIGSEGV == signal  || SIGTERM == signal) {
 		int i, numOfBacktraceStrings;
 		void *buf[SIZE];
 		char **strings;
@@ -52,8 +56,20 @@ int main(int argc, char *argv[]) {
 
 	std::cout << "Hello world!!" << std::endl;
 	PSProxy::ClientSocket socket("127.0.0.1", 10000);
-	do {
-	} while(1);
+	PSProxy::PacketData data;
+	//do {
+		pDebug("%s\n", "Reading data from the socket...");
+		socket.read(data);
+		pDebug("Read %d bytes...\n", data.getSize());
+		if(0 < data.getSize()) {
+			pDebug("Read the following str: <%s>\n", data.getData().c_str());
+		} else {
+			pDebug("%s\n", "Read shit...");
+		}
+		data.setData("Bye");
+		//socket.write(data);
+		socket << data;
+	//} while(1);
 
 	return 0;
 

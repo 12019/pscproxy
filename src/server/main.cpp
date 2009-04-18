@@ -42,6 +42,13 @@ int main(int argc, char *argv[]) {
 	do {
 		if(socket.clientWaitingForConnection()) {
 			pDebug("%s\n", "Client is waiting for a connection!");
+			pDebug("%s\n", "Writing to the client...");
+			PSProxy::PacketData data("Hello world");
+			socket << data;
+			pDebug("%s\n", "Now reading from client...");
+			socket.read(data);
+			pDebug("Read %d bytes. The data is <%s>\n", data.getSize(), data.getData().c_str());
+			break;
 		}
 	} while(1);
 	return 0;
