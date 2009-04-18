@@ -25,22 +25,14 @@ int Socket::write(int fileDescriptor, PacketData const &data) {
 }
 
 int Socket::read(int fileDescriptor, PacketData &data) {
-	pDebug("%s\n", "tick...");
 	char *buf = new char[PacketData::maxLen()];
-	pDebug("%s\n", "tick...");
 	int rc = ::read(fileDescriptor, buf, PacketData::maxLen());
-	pDebug("%s\n", "tick...");
 	if(0 < rc) {
-		pDebug("%s\n", "tick...");
 		data.setData(buf, rc);
-		pDebug("%s\n", "tick...");
 	} else {
-		pDebug("%s\n", "tick...");
 		data.clear();
-		pDebug("%s\n", "tick...");
 	}
 	delete[] buf;
-	pDebug("%s\n", "tick...");
 
 	return rc;
 }
