@@ -12,8 +12,8 @@ namespace PSProxy {
 			Socket();
 			virtual ~Socket();
 
-			virtual int write(PacketData const &data);
-			virtual int read(PacketData &data);
+			virtual int write(PacketData const &data) = 0;
+			virtual int read(PacketData &data) = 0;
 
 		protected:
 			int sockFileDesc;

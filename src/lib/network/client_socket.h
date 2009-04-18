@@ -11,6 +11,9 @@ namespace PSProxy {
 			ClientSocket(std::string host, Port_t port);
 			virtual ~ClientSocket();
 
+			virtual int write(PacketData const &data);
+			virtual int read(PacketData &data);
+
 		protected:
 			void init(std::string host, Port_t port);
 	};
