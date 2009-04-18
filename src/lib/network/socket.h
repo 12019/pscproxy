@@ -3,12 +3,17 @@
 
 #include <stdint.h>
 
+#include "packet_data.h"
+
 namespace PSProxy {
 	typedef uint16_t Port_t;
 	class Socket {
 		public:
 			Socket();
-			~Socket();
+			virtual ~Socket();
+
+			virtual int write(PacketData const &data);
+			virtual int read(PacketData &data);
 
 		protected:
 			int sockFileDesc;

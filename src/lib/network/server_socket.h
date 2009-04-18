@@ -7,12 +7,17 @@ namespace PSProxy {
 	class ServerSocket : public Socket {
 		public:
 			ServerSocket(Port_t port);
-			~ServerSocket();
+			virtual ~ServerSocket();
 
 			bool clientWaitingForConnection();
+			void initClient();
+			virtual int write(PacketData const &data);
+			virtual int read(PacketData &data);
 
 		protected:
 			void init(Port_t port);
+
+			int clientSockFileDesc;
 	};
 }
 #endif // SERVER_SOCKET_H

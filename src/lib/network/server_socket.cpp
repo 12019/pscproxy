@@ -9,13 +9,17 @@
 using namespace PSProxy;
 
 ServerSocket::ServerSocket(Port_t port)
-: Socket() {
+: Socket(), clientSockFileDesc(-1) {
 	pDebug("%s...\n", "Creating instance of ServerSocket");
 	init(port);
 }
 
 ServerSocket::~ServerSocket() {
 	pDebug("%s...\n", "Distroyng instance of ServerSocket");
+	if(-1 != clientSockFileDesc) {
+		pDebug("%s...\n", "Closing client socket");
+		close(clientSockFileDesc);
+	}
 }
 
 void ServerSocket::init(Port_t port) {
@@ -28,12 +32,49 @@ void ServerSocket::init(Port_t port) {
 	server_address.sin_port = htons(port);
 	if(0 != bind(sockFileDesc, (struct sockaddr *) &server_address, sizeof(server_address))) {
 		perror("Error binding the socket");
+		pDebug("the port is %d\n", port);
 		throw std::exception(); // TODO: Implement exceptions
 	}
 	if(0 != listen(sockFileDesc, 1)) {
 		perror("Error trying to listen on the socket");
 		throw std::exception(); // TODO: Implement exceptions
 	}
+}
+
+void ServerSocket::initClient() {
+	if(-1 == clientSockFileDesc) {
+		struct sockaddr_in client_address;
+		socklen_t size = sizeof(client_address);
+		clientSockFileDesc = accept(sockFileDesc, (struct sockaddr *)&client_address, &size);
+		pDebug("Socket descriptor is %d\n", clientSockFileDesc);
+	}
+}
+
+int ServerSocket::write(PacketData const &data) {
+	initClient();
+	int rc = ::write(clientSockFileDesc, data.getDataBuf(), data.getSize());
+	if(-1 == rc) {
+		perror("Error writing data to the socket");
+	}
+
+	return rc;
+}
+
+int ServerSocket::read(PacketData &data) {
+	char buf[PacketData::maxLen()];
+	pDebug("Socket descriptor is %d\n", clientSockFileDesc);
+	initClient();
+
+	pDebug("%s\n", "About to read data");
+	int rc = ::read(clientSockFileDesc, buf, PacketData::maxLen());
+	pDebug("read() returned %d\n", rc);
+	if(0 < rc) {
+		data.setData(buf, rc);
+	} else {
+		data.clear();
+	}
+
+	return rc;
 }
 
 bool ServerSocket::clientWaitingForConnection() {

@@ -9,7 +9,7 @@ namespace PSProxy {
 	class ClientSocket : public Socket {
 		public:
 			ClientSocket(std::string host, Port_t port);
-			~ClientSocket();
+			virtual ~ClientSocket();
 
 		protected:
 			void init(std::string host, Port_t port);
