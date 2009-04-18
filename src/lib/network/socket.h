@@ -16,6 +16,9 @@ namespace PSProxy {
 			virtual int read(PacketData &data) = 0;
 
 		protected:
+			int write(int fileDescriptor, PacketData const &data);
+			int read(int fileDescriptor, PacketData &data);
+
 			int sockFileDesc;
 
 	};

@@ -13,11 +13,14 @@ namespace PSProxy {
 			void initClient();
 			virtual int write(PacketData const &data);
 			virtual int read(PacketData &data);
+			friend ServerSocket &operator <<(ServerSocket &socket, PacketData &data);
 
 		protected:
 			void init(Port_t port);
 
 			int clientSockFileDesc;
 	};
+
+	ServerSocket &operator <<(ServerSocket &socket, PacketData &data);
 }
 #endif // SERVER_SOCKET_H

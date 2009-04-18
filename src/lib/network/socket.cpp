@@ -14,6 +14,34 @@ Socket::Socket() {
 
 Socket::~Socket() {
 	pDebug("%s...\n", "Distroyng instance of Socket");
-	close(sockFileDesc);
+	if(0 != close(sockFileDesc)) {
+		perror("Error while closing client socket");
+	}
+}
+
+int Socket::write(int fileDescriptor, PacketData const &data) {
+	pDebug("About to write %d bytes of <%s>\n", data.getSize(), data.getDataBuf());
+	return ::write(fileDescriptor, data.getDataBuf(), data.getSize());
+}
+
+int Socket::read(int fileDescriptor, PacketData &data) {
+	pDebug("%s\n", "tick...");
+	char *buf = new char[PacketData::maxLen()];
+	pDebug("%s\n", "tick...");
+	int rc = ::read(fileDescriptor, buf, PacketData::maxLen());
+	pDebug("%s\n", "tick...");
+	if(0 < rc) {
+		pDebug("%s\n", "tick...");
+		data.setData(buf, rc);
+		pDebug("%s\n", "tick...");
+	} else {
+		pDebug("%s\n", "tick...");
+		data.clear();
+		pDebug("%s\n", "tick...");
+	}
+	delete[] buf;
+	pDebug("%s\n", "tick...");
+
+	return rc;
 }
 

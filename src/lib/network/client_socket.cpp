@@ -16,34 +16,16 @@ ClientSocket::ClientSocket(std::string host, Port_t port) {
 	init(host, port);
 }
 
+ClientSocket::~ClientSocket() {
+	pDebug("%s...\n", "Distroyng instance of ClientSocket");
+}
+
 int ClientSocket::write(PacketData const &data) {
-	pDebug("About to write %d bytes of <%s>\n", data.getSize(), data.getDataBuf());
-	return ::write(sockFileDesc, data.getDataBuf(), data.getSize());
+	return Socket::write(sockFileDesc, data);
 }
 
 int ClientSocket::read(PacketData &data) {
-	pDebug("%s\n", "tick...");
-	char *buf = new char[PacketData::maxLen()];
-	pDebug("%s\n", "tick...");
-	int rc = ::read(sockFileDesc, buf, PacketData::maxLen());
-	pDebug("%s\n", "tick...");
-	if(0 < rc) {
-		pDebug("%s\n", "tick...");
-		data.setData(buf, rc);
-		pDebug("%s\n", "tick...");
-	} else {
-		pDebug("%s\n", "tick...");
-		data.clear();
-		pDebug("%s\n", "tick...");
-	}
-	delete[] buf;
-	pDebug("%s\n", "tick...");
-
-	return rc;
-}
-
-ClientSocket::~ClientSocket() {
-	pDebug("%s...\n", "Distroyng instance of ClientSocket");
+	return Socket::read(sockFileDesc, data);
 }
 
 void ClientSocket::init(std::string host, Port_t port) {
@@ -59,5 +41,10 @@ void ClientSocket::init(std::string host, Port_t port) {
 		perror("Error initiating client socket");
 		throw std::exception(); // TODO: Implement exceptions
 	}
+}
+
+PSProxy::ClientSocket &PSProxy::operator <<(ClientSocket &socket, PacketData &data) {
+	socket.write(data);
+	return socket;
 }
 

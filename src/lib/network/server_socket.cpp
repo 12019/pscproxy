@@ -18,7 +18,9 @@ ServerSocket::~ServerSocket() {
 	pDebug("%s...\n", "Distroyng instance of ServerSocket");
 	if(-1 != clientSockFileDesc) {
 		pDebug("%s...\n", "Closing client socket");
-		close(clientSockFileDesc);
+		if(0 != close(clientSockFileDesc)) {
+			perror("Error while closing client socket");
+		}
 	}
 }
 
@@ -52,19 +54,21 @@ void ServerSocket::initClient() {
 
 int ServerSocket::write(PacketData const &data) {
 	initClient();
+	/*
 	int rc = ::write(clientSockFileDesc, data.getDataBuf(), data.getSize());
 	if(-1 == rc) {
 		perror("Error writing data to the socket");
 	}
+	*/
 
-	return rc;
+	return Socket::write(clientSockFileDesc, data);
 }
 
 int ServerSocket::read(PacketData &data) {
-	char buf[PacketData::maxLen()];
-	pDebug("Socket descriptor is %d\n", clientSockFileDesc);
+	//char buf[PacketData::maxLen()];
 	initClient();
 
+	/*
 	pDebug("%s\n", "About to read data");
 	int rc = ::read(clientSockFileDesc, buf, PacketData::maxLen());
 	pDebug("read() returned %d\n", rc);
@@ -73,8 +77,9 @@ int ServerSocket::read(PacketData &data) {
 	} else {
 		data.clear();
 	}
+	*/
 
-	return rc;
+	return Socket::read(clientSockFileDesc, data);
 }
 
 bool ServerSocket::clientWaitingForConnection() {
@@ -98,5 +103,11 @@ bool ServerSocket::clientWaitingForConnection() {
 	}
 
 	return false;
+}
+
+PSProxy::ServerSocket &PSProxy::operator <<(ServerSocket &socket, PacketData &data) {
+	socket.write(data);
+	
+	return socket;
 }
 
