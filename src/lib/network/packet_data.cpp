@@ -36,7 +36,7 @@ void PacketData::clear() {
 void PacketData::setData(std::string const &newData) {
 	clear();
 	size = newData.size();
-	data = new(char[size]);
+	data = new char[size];
 	for(unsigned int i = 0; i < size; i++) {
 		data[i] = newData[i];
 	}
@@ -45,7 +45,7 @@ void PacketData::setData(std::string const &newData) {
 void PacketData::setData(char const *newData, int newSize) {
 	clear();
 	size = newSize;
-	data = new(char[size]);
+	data = new char[size];
 	for(unsigned int i = 0; i < size; i++) {
 		data[i] = newData[i];
 	}
