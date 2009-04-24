@@ -1,3 +1,3 @@
 add_subdirectory(cardreader)
-add_subdirectory(season)
+add_subdirectory(cardemulator)
 add_subdirectory(network)

@@ -16,6 +16,7 @@ namespace PSProxy {
 			virtual std::string getData() const { return data; }
 			virtual const char *getDataBuf() const { return data; }
 			virtual unsigned int getSize() const { return size; }
+
 			static unsigned int maxLen() { return 1024; }
 
 		private:

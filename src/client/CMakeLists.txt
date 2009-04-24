@@ -1,4 +1,4 @@
-include_directories(${PSPROXY_SOURCE_DIR}/src/lib/season
+include_directories(${PSPROXY_SOURCE_DIR}/src/lib/cardemulator
 	${PSPROXY_SOURCE_DIR}/src/lib/network)
 
 set(PSPROXY_CLIENT_SRCS
@@ -15,5 +15,5 @@ else(LIBGNUTLS_FOUND)
 	message(STATUS "Compiling client without libgnutls")
 endif(LIBGNUTLS_FOUND)
 
-target_link_libraries(psproxy_client psproxy_season psproxy_network)
+target_link_libraries(psproxy_client psproxy_cardemulator psproxy_network)
 install(TARGETS psproxy_client DESTINATION bin)
