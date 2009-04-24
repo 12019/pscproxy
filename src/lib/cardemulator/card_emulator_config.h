@@ -1,13 +1,13 @@
-#ifndef SEASON_CONFIG_H
-#define SEASON_CONFIG_H
+#ifndef CARD_EMULATOR_CONFIG_H
+#define CARD_EMULATOR_CONFIG_H
 
 #include <string>
 
 namespace PSCProxy {
-	class SeasonConfig {
+	class CardEmulatorConfig {
 		public:
-			SeasonConfig(std::string const &file);
-			~SeasonConfig();
+			CardEmulatorConfig(std::string const &file);
+			~CardEmulatorConfig();
 			const char *getDevFilename() const { return devFilename.c_str(); }
 
 		private:
@@ -15,4 +15,4 @@ namespace PSCProxy {
 	};
 }
 
-#endif // SEASON_CONFIG_H
+#endif // CARD_EMULATOR_CONFIG_H

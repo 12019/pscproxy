@@ -14,7 +14,7 @@
 
 using namespace PSCProxy;
 
-Season::Season(SeasonConfig const &initConfig)
+Season::Season(CardEmulatorConfig const &initConfig)
 : config(initConfig), maxBufferLen(512) {
 	pDebug("%s\n", "Creating Season instance...");
 	resetDelay = 1e6;

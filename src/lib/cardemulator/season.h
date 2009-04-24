@@ -3,12 +3,12 @@
 
 #include <vector>
 
-#include "season_config.h"
+#include "card_emulator_config.h"
 namespace PSCProxy {
 	typedef std::vector<unsigned char> Data_t;
 	class Season {
 		public:
-			Season(SeasonConfig const &initConfig);
+			Season(CardEmulatorConfig const &initConfig);
 			~Season();
 
 			bool readDataAvail();
@@ -19,7 +19,7 @@ namespace PSCProxy {
 		private:
 			void init();
 
-			SeasonConfig const &config;
+			CardEmulatorConfig const &config;
 			int fileDescriptor;
 
 			const int maxBufferLen;

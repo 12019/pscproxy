@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 
-	PSCProxy::Season season(PSCProxy::SeasonConfig("~/.pscproxy-client.conf"));
+	PSCProxy::Season season(PSCProxy::CardEmulatorConfig("~/.pscproxy-client.conf"));
 
 	while(!season.getLines2()) {
 		pDebug("%s\n", "Yet offline");
