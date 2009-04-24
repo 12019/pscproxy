@@ -25,6 +25,7 @@ Phoenix::Phoenix(CardReaderConfig const &config)
 	init2();
 }
 
+#if 0
 void Phoenix::init() {
 	struct termios ios;
 	speed_t inSpeed, outSpeed;
@@ -92,6 +93,7 @@ void Phoenix::init() {
 	pDebug("inSpeed=%d, outSpeed=%d\n", inSpeed, outSpeed);
 	pDebug("fileDescriptor=%d\n", fileDescriptor);
 }
+#endif
 
 void Phoenix::init2() {
 	// This version of ttyS* initialization is currently not used. See init()
@@ -171,6 +173,10 @@ void Phoenix::read(Data_t &result) {
 	pDebug("Normal end: a=%d\n", a);
 
 	usleep(commandDelay);
+}
+
+void Phoenix::write(Data_t const &data) {
+	// TODO: Implement it
 }
 
 void Phoenix::setctrl(const int ctrl) {

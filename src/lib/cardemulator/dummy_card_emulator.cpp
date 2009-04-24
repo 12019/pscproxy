@@ -40,14 +40,11 @@ void DummyCardEmulator::read(Data_t &result) {
 }
 
 void DummyCardEmulator::write(Data_t const &data) {
-	// TODO: Implement it!!
 	for(unsigned int i = 0; i < data.size(); i++) {
 		usleep(dataTXDelay);
 	}
 
 	prepareReadData(true);
-
-	return;
 }
 
 bool DummyCardEmulator::resetRequested() {

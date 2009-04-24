@@ -1,5 +1,6 @@
 set(CARDREADER_SRCS
 	cardreader.cpp
+	dummy_cardreader.cpp
 	phoenix.cpp
 	cardreader_config.cpp)
 include_directories(${PSCPROXY_SOURCE_DIR}/src/lib/cardreader)

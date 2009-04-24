@@ -1,10 +1,9 @@
 #ifndef CARD_EMULATOR_H
 #define CARD_EMULATOR_H
 
-#include <vector>
+#include "common_defines.h"
 
 namespace PSCProxy {
-	typedef std::vector<unsigned char> Data_t;
 	class CardEmulator {
 		public:
 			typedef enum {
