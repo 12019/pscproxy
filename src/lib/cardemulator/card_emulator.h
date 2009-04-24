@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace PSProxy {
+namespace PSCProxy {
 	typedef std::vector<unsigned char> Data_t;
 	class CardEmulator {
 		public:

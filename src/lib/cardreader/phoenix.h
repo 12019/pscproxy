@@ -1,9 +1,9 @@
-#ifndef PHOENIX_X
-#define PHOENIX_X
+#ifndef PHOENIX_H
+#define PHOENIX_H
 
 #include "cardreader.h"
 
-namespace PSProxy {
+namespace PSCProxy {
 	class Phoenix : public CardReader {
 		public:
 			Phoenix(CardReaderConfig const &config);
@@ -19,4 +19,4 @@ namespace PSProxy {
 			const int maxBufferLen;
 	};
 }
-#endif // PHOENIX_X
+#endif // PHOENIX_H

@@ -5,7 +5,7 @@
 #include "debug.h"
 #include "socket.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 Socket::Socket() {
 	pDebug("%s...\n", "Creating instance of Socket");

@@ -12,7 +12,7 @@
 #include "season.h"
 #include "debug.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 Season::Season(SeasonConfig const &initConfig)
 : config(initConfig), maxBufferLen(512) {

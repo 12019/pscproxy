@@ -14,7 +14,7 @@
 #include "debug.h"
 
 #define _POSIX_SOURCE 1
-using namespace PSProxy;
+using namespace PSCProxy;
 
 Phoenix::Phoenix(CardReaderConfig const &config)
 : CardReader(config), maxBufferLen(512) {

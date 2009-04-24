@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "packet_data.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 PacketData::PacketData()
 : size(0), data(NULL) {

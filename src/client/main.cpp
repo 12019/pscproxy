@@ -16,7 +16,7 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #include "season.h"
 #include "client_socket.h"
 
-static void PSProxySignalHandler(int signal) {
+static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
 	if(SIGINT == signal) {
@@ -39,10 +39,10 @@ static void PSProxySignalHandler(int signal) {
 }
 
 void enableSignalHandling() {
-	signal(SIGSEGV, PSProxySignalHandler);
-	signal(SIGINT,  PSProxySignalHandler);
-	signal(SIGTERM, PSProxySignalHandler);
-	signal(SIGUSR1, PSProxySignalHandler);
+	signal(SIGSEGV, PSCProxySignalHandler);
+	signal(SIGINT,  PSCProxySignalHandler);
+	signal(SIGTERM, PSCProxySignalHandler);
+	signal(SIGUSR1, PSCProxySignalHandler);
 	signal(SIGPIPE, SIG_IGN);
 
 }
@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
 	std::cout << "Hello world!!" << std::endl;
-	PSProxy::ClientSocket socket("127.0.0.1", 10000);
-	PSProxy::PacketData data;
+	PSCProxy::ClientSocket socket("127.0.0.1", 10000);
+	PSCProxy::PacketData data;
 	//do {
 		pDebug("%s\n", "Reading data from the socket...");
 		socket.read(data);
@@ -73,17 +73,17 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 
-	PSProxy::Season season(PSProxy::SeasonConfig("~/.psproxy-client.conf"));
+	PSCProxy::Season season(PSCProxy::SeasonConfig("~/.pscproxy-client.conf"));
 
 	while(!season.getLines2()) {
 		pDebug("%s\n", "Yet offline");
 	}
 	
 	// 3B 24 00 30 FF 3B 24 00 30 42 30 30
-	PSProxy::Data_t tmp;
+	PSCProxy::Data_t tmp;
 	season.read(tmp);
 
-	PSProxy::Data_t a;
+	PSCProxy::Data_t a;
 	a.push_back(0x3B);
 	a.push_back(0x24);
 	a.push_back(0x00);

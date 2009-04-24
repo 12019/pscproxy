@@ -5,7 +5,7 @@
 
 #include "packet_data.h"
 
-namespace PSProxy {
+namespace PSCProxy {
 	typedef uint16_t Port_t;
 	class Socket {
 		public:

@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace PSProxy {
+namespace PSCProxy {
 	class PacketData {
 		public:
 			PacketData();

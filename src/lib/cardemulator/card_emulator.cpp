@@ -1,6 +1,6 @@
 #include "card_emulator.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 CardEmulator::CardEmulator() {
 }

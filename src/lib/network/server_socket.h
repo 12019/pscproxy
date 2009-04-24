@@ -3,7 +3,7 @@
 
 #include "socket.h"
 
-namespace PSProxy {
+namespace PSCProxy {
 	class ServerSocket : public Socket {
 		public:
 			ServerSocket(Port_t port);

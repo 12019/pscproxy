@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace PSProxy {
+namespace PSCProxy {
 	class SeasonConfig {
 		public:
 			SeasonConfig(std::string const &file);

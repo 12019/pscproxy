@@ -1,4 +1,4 @@
-#include "psproxy-config.h"
+#include "pscproxy-config.h"
 
 #ifdef DEBUG
 #include <cstdio>

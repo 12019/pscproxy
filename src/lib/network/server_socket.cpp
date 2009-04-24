@@ -6,7 +6,7 @@
 #include "debug.h"
 #include "server_socket.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 ServerSocket::ServerSocket(Port_t port)
 : Socket(), clientSockFileDesc(-1) {
@@ -105,7 +105,7 @@ bool ServerSocket::clientWaitingForConnection() {
 	return false;
 }
 
-PSProxy::ServerSocket &PSProxy::operator <<(ServerSocket &socket, PacketData &data) {
+PSCProxy::ServerSocket &PSCProxy::operator <<(ServerSocket &socket, PacketData &data) {
 	socket.write(data);
 	
 	return socket;

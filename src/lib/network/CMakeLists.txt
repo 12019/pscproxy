@@ -4,5 +4,5 @@ set(NETWORK_SRCS
 	socket.cpp
 	server_socket.cpp)
 
-add_library(psproxy_network SHARED ${NETWORK_SRCS})
-install(TARGETS psproxy_network DESTINATION lib/)
+add_library(pscproxy_network SHARED ${NETWORK_SRCS})
+install(TARGETS pscproxy_network DESTINATION lib/)

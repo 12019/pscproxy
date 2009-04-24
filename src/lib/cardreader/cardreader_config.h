@@ -2,7 +2,7 @@
 #define CARDREADER_CONFIG_H
 
 #include <string>
-namespace PSProxy {
+namespace PSCProxy {
 	class CardReaderConfig {
 		public:
 			CardReaderConfig(std::string const&file);

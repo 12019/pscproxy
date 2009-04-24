@@ -8,7 +8,7 @@
 #include "server_socket.h"
 #include "debug.h"
 
-static void PSProxySignalHandler(int signal) {
+static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
 	if(SIGSEGV == signal || SIGINT == signal || SIGTERM == signal) {
@@ -27,10 +27,10 @@ static void PSProxySignalHandler(int signal) {
 }
 
 void enableSignalHandling() {
-	signal(SIGSEGV, PSProxySignalHandler);
-	signal(SIGINT,  PSProxySignalHandler);
-	signal(SIGTERM, PSProxySignalHandler);
-	signal(SIGUSR1, PSProxySignalHandler);
+	signal(SIGSEGV, PSCProxySignalHandler);
+	signal(SIGINT,  PSCProxySignalHandler);
+	signal(SIGTERM, PSCProxySignalHandler);
+	signal(SIGUSR1, PSCProxySignalHandler);
 	signal(SIGPIPE, SIG_IGN);
 
 }
@@ -38,12 +38,12 @@ void enableSignalHandling() {
 int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
-	PSProxy::ServerSocket socket(10000);
+	PSCProxy::ServerSocket socket(10000);
 	do {
 		if(socket.clientWaitingForConnection()) {
 			pDebug("%s\n", "Client is waiting for a connection!");
 			pDebug("%s\n", "Writing to the client...");
-			PSProxy::PacketData data("Hello world");
+			PSCProxy::PacketData data("Hello world");
 			socket << data;
 			pDebug("%s\n", "Now reading from client...");
 			socket.read(data);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 		}
 	} while(1);
 	return 0;
-	PSProxy::Phoenix reader(PSProxy::CardReaderConfig("aaa.conf"));
+	PSCProxy::Phoenix reader(PSCProxy::CardReaderConfig("aaa.conf"));
 	reader.reset();
 
 	return 0;

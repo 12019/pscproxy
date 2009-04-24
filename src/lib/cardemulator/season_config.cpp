@@ -1,7 +1,7 @@
 #include "season_config.h"
 #include "debug.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 SeasonConfig::SeasonConfig(std::string const &file) {
 	pDebug("%s\n", "Creating instance of SeasonConfig");

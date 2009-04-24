@@ -5,7 +5,7 @@
 
 #include "socket.h"
 
-namespace PSProxy {
+namespace PSCProxy {
 	class ClientSocket : public Socket {
 		public:
 			ClientSocket(std::string host, Port_t port);

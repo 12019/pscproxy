@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "client_socket.h"
 
-using namespace PSProxy;
+using namespace PSCProxy;
 
 ClientSocket::ClientSocket(std::string host, Port_t port) {
 	pDebug("%s...\n", "Creating instance of ClientSocket");
@@ -43,7 +43,7 @@ void ClientSocket::init(std::string host, Port_t port) {
 	}
 }
 
-PSProxy::ClientSocket &PSProxy::operator <<(ClientSocket &socket, PacketData &data) {
+PSCProxy::ClientSocket &PSCProxy::operator <<(ClientSocket &socket, PacketData &data) {
 	socket.write(data);
 	return socket;
 }
