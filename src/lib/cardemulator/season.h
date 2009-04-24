@@ -4,9 +4,10 @@
 #include <vector>
 
 #include "card_emulator_config.h"
+#include "card_emulator.h"
+
 namespace PSCProxy {
-	typedef std::vector<unsigned char> Data_t;
-	class Season {
+	class Season : public CardEmulator{
 		public:
 			Season(CardEmulatorConfig const &initConfig);
 			~Season();
@@ -23,11 +24,6 @@ namespace PSCProxy {
 			int fileDescriptor;
 
 			const int maxBufferLen;
-
-			unsigned int resetDelay;
-			unsigned int commandDelay;
-			unsigned int dataTXDelay;
-			unsigned int timeoutDelay;
 	};
 }
 #endif // SEASON_H

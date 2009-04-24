@@ -13,6 +13,7 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #endif // HAVE_GNUTLS
 
 #include "debug.h"
+#include "dummy_card_emulator.h"
 #include "season.h"
 #include "client_socket.h"
 
@@ -54,25 +55,34 @@ int main(int argc, char *argv[]) {
 #endif // HAVE_GNUTLS
 	enableSignalHandling();
 
-	std::cout << "Hello world!!" << std::endl;
-	PSCProxy::ClientSocket socket("127.0.0.1", 10000);
-	PSCProxy::PacketData data;
-	//do {
-		pDebug("%s\n", "Reading data from the socket...");
-		socket.read(data);
-		pDebug("Read %d bytes...\n", data.getSize());
-		if(0 < data.getSize()) {
-			pDebug("Read the following str: <%s>\n", data.getData().c_str());
-		} else {
-			pDebug("%s\n", "Read shit...");
+	PSCProxy::CardEmulator *emulator = new PSCProxy::DummyCardEmulator();
+	int rc;
+	PSCProxy::Data_t atr, a;
+	atr.push_back(0x3B);
+	atr.push_back(0x24);
+	atr.push_back(0x00);
+	atr.push_back(0x30);
+	atr.push_back(0x42);
+	atr.push_back(0x30);
+	atr.push_back(0x30);
+
+	while(1) {
+		rc = emulator->tick();
+		if(0 != (rc & PSCProxy::CardEmulator::ResetRequested)) {
+			pDebug("%s\n", "Requested reset... Writing ATR to card emulator");
+			emulator->write(atr);
 		}
-		data.setData("Bye");
-		//socket.write(data);
-		socket << data;
-	//} while(1);
+
+		if(0 != (rc & PSCProxy::CardEmulator::ReadDataAvail)) {
+			pDebug("%s\n", "There's some data in emulator's buffer waiting to be read... Reading");
+			emulator->read(a);
+		}
+		usleep(10e4);
+	}
 
 	return 0;
 
+	/*
 	PSCProxy::Season season(PSCProxy::CardEmulatorConfig("~/.pscproxy-client.conf"));
 
 	while(!season.getLines2()) {
@@ -102,4 +112,5 @@ int main(int argc, char *argv[]) {
 	}
 
 	return 0;
+	*/
 }
