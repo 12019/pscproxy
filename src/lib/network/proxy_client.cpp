@@ -18,32 +18,26 @@
  */
 
 #include "debug.h"
-#include "proxy_server.h"
+#include "proxy_client.h"
 
 using namespace PSCProxy;
 
-ProxyServer::ProxyServer(CardReader *initReader, ServerSocket *initServerSocket)
-: reader(initReader), serverSocket(initServerSocket) {
-	pDebug("%s\n", "Creating instance of ProxyServer");
+ProxyClient::ProxyClient(CardEmulator *initEmulator, ClientSocket *initClientSocket) {
+	pDebug("%s\n", "Creating instance of ProxyClient");
 }
 
-ProxyServer::~ProxyServer() {
-	pDebug("%s\n", "Destroying instance of ProxyServer");
+ProxyClient::~ProxyClient() {
+	pDebug("%s\n", "Destroying instance of ProxyClient");
 }
 
-Data_t const &ProxyServer::getAtr() const {
-	if(reader) {
-		return reader->getAtr();
-	} else {
-		static Data_t nullAtr;
-		return nullAtr;
-	}
+void ProxyClient::tick() {
+	pDebug("%s\n", "Tick...");
 }
 
-void ProxyServer::run() {
+void ProxyClient::run() {
 	while(1) {
 		tick();
-		usleep(10e4); // sleep for 1/100 sec
+		usleep(10e4);
 	}
 }
 

@@ -12,13 +12,10 @@ namespace PSCProxy {
 			Socket();
 			virtual ~Socket();
 
-			virtual int write(PacketData const &data) = 0;
-			virtual int read(PacketData &data) = 0;
+			static int write(int fileDescriptor, PacketData const &data);
+			static int read(int fileDescriptor, PacketData &data);
 
 		protected:
-			int write(int fileDescriptor, PacketData const &data);
-			int read(int fileDescriptor, PacketData &data);
-
 			int sockFileDesc;
 
 	};

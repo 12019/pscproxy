@@ -25,7 +25,7 @@
 //#include "phoenix.h"
 #include "dummy_cardreader.h"
 #include "cardreader_config.h"
-#include "server_socket.h"
+#include "pscproxy_server.h"
 #include "debug.h"
 
 static void PSCProxySignalHandler(int signal) {
@@ -59,28 +59,10 @@ int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
 	PSCProxy::CardReader *reader = new PSCProxy::DummyCardReader();
-	pDebug("%s\n", "Resetting card...");
-	PSCProxy::Data_t atr = reader->reset();
-	pDebug("%s\n", "Reset done");
-	PSCProxy::Data_t a;
-	a.push_back(1);
-	a.push_back(2);
-	a.push_back(3);
-	a.push_back(4);
-	reader->write(a);
-	reader->read(a);
-	pDebug("%s", "ATR: ");
-	for(unsigned int i = 0; i < atr.size(); i++) {
-		std::cout << std::hex << (int)atr[i] << " ";
-	}
-	std::cout << std::endl;
+	PSCProxy::ServerSocket *socket = new PSCProxy::ServerSocket(15000);
+	PSCProxy::ProxyServer *server = new PSCProxy::PSCProxyServer(reader, socket);
 
-	pDebug("%s", "Read: ");
-	for(unsigned int i = 0; i < a.size(); i++) {
-		std::cout << std::hex << (int)a[i] << " ";
-	}
-	std::cout << std::endl;
-
+	server->run();
 
 	/*
 	PSCProxy::ServerSocket socket(10000);

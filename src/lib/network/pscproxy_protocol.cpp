@@ -17,33 +17,21 @@
  * along with PSCProxy.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "debug.h"
-#include "proxy_server.h"
+#include "pscproxy_protocol.h"
 
 using namespace PSCProxy;
 
-ProxyServer::ProxyServer(CardReader *initReader, ServerSocket *initServerSocket)
-: reader(initReader), serverSocket(initServerSocket) {
-	pDebug("%s\n", "Creating instance of ProxyServer");
+void PSCProxyProtocol::prepareAuth(PacketData &data) {
 }
 
-ProxyServer::~ProxyServer() {
-	pDebug("%s\n", "Destroying instance of ProxyServer");
+bool PSCProxyProtocol::parseAuth(PacketData const&data, std::string &user, std::string &pass) {
+	return false;
 }
 
-Data_t const &ProxyServer::getAtr() const {
-	if(reader) {
-		return reader->getAtr();
-	} else {
-		static Data_t nullAtr;
-		return nullAtr;
-	}
+void PSCProxyProtocol::prepareAuthReply(PacketData &data) {
 }
 
-void ProxyServer::run() {
-	while(1) {
-		tick();
-		usleep(10e4); // sleep for 1/100 sec
-	}
+bool PSCProxyProtocol::parseAuthReply(PacketData const &data) {
+	return false;
 }
 

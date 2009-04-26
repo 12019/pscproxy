@@ -7,20 +7,23 @@ namespace PSCProxy {
 	class ServerSocket : public Socket {
 		public:
 			ServerSocket(Port_t port);
-			virtual ~ServerSocket();
+			~ServerSocket();
 
-			bool clientWaitingForConnection();
+			bool newClientWaitingForConnection();
+			int connectWaitingClient();
 			void initClient();
-			virtual int write(PacketData const &data);
-			virtual int read(PacketData &data);
-			friend ServerSocket &operator <<(ServerSocket &socket, PacketData &data);
+			//int write(PacketData const &data, unsigned int sockIdx);
+
+			//bool newDataInSocket(int desc);
+			//void checkDataInSockets();
+			//void tick();
+			//Sockets const &getReadReadySockets() const { return readReadySockets; }
 
 		protected:
 			void init(Port_t port);
 
-			int clientSockFileDesc;
+			//Sockets clientSockets;
+			//Sockets readReadySockets;
 	};
-
-	ServerSocket &operator <<(ServerSocket &socket, PacketData &data);
 }
 #endif // SERVER_SOCKET_H
