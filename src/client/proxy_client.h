@@ -10,7 +10,7 @@ namespace PSCProxy {
 			ProxyClient(CardEmulator *initEmulator, ClientSocket *initClientSocket);
 			virtual ~ProxyClient();
 
-			void tick();
+			virtual void tick() = 0;
 			void run();
 
 		protected:

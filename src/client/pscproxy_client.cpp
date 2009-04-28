@@ -31,3 +31,7 @@ PSCProxyClient::~PSCProxyClient() {
 	pDebug("%s\n", "Destroying instance of PSCProxyClient");
 }
 
+void PSCProxyClient::tick() {
+	pDebug("%s\n", "Tick...");
+}
+

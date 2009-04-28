@@ -31,10 +31,11 @@
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #endif // HAVE_GNUTLS
 
+#include "client_socket.h"
 #include "debug.h"
 #include "dummy_card_emulator.h"
+#include "pscproxy_client.h"
 #include "season.h"
-#include "client_socket.h"
 
 static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
@@ -64,7 +65,6 @@ void enableSignalHandling() {
 	signal(SIGTERM, PSCProxySignalHandler);
 	signal(SIGUSR1, PSCProxySignalHandler);
 	signal(SIGPIPE, SIG_IGN);
-
 }
 
 int main(int argc, char *argv[]) {
@@ -75,6 +75,11 @@ int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
 	PSCProxy::CardEmulator *emulator = new PSCProxy::DummyCardEmulator();
+	PSCProxy::ClientSocket *socket = new PSCProxy::ClientSocket("127.0.0.1", 15000);
+	PSCProxy::ProxyClient  *client = new PSCProxy::PSCProxyClient(emulator, socket);
+	client->run();
+
+	/*
 	int rc;
 	PSCProxy::Data_t atr, a;
 	atr.push_back(0x3B);
@@ -101,7 +106,6 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 
-	/*
 	PSCProxy::Season season(PSCProxy::CardEmulatorConfig("~/.pscproxy-client.conf"));
 
 	while(!season.getLines2()) {

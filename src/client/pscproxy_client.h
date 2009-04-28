@@ -9,6 +9,8 @@ namespace PSCProxy {
 		public:
 			PSCProxyClient(CardEmulator *initEmulator, ClientSocket *initClientSocket);
 			virtual ~PSCProxyClient();
+
+			virtual void tick();
 	};
 }
 

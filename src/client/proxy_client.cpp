@@ -30,10 +30,6 @@ ProxyClient::~ProxyClient() {
 	pDebug("%s\n", "Destroying instance of ProxyClient");
 }
 
-void ProxyClient::tick() {
-	pDebug("%s\n", "Tick...");
-}
-
 void ProxyClient::run() {
 	while(1) {
 		tick();
