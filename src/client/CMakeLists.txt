@@ -2,7 +2,11 @@ include_directories(${PSCPROXY_SOURCE_DIR}/src/lib/cardemulator
 	${PSCPROXY_SOURCE_DIR}/src/lib/network)
 
 set(PSCPROXY_CLIENT_SRCS
-	main.cpp)
+	client_socket.cpp
+	main.cpp
+	proxy_client.cpp
+	pscproxy_client.cpp
+	)
 
 add_executable(pscproxy_client ${PSCPROXY_CLIENT_SRCS})
 
