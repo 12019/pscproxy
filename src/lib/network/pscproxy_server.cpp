@@ -84,8 +84,10 @@ void PSCProxyServer::Client::checkAuth() {
 		pDebug("len=%d, data.getSize()=%d\n", len, data.getSize());
 		if(PSCProxyProtocol::parseAuth(data, user, pass)) {
 			state = AUTHENTICATED;
+			pDebug("%s\n", "Changing state to AUTHENTICATED");
 		} else {
 			state = CLOSED;
+			pDebug("%s\n", "Changing state to CLOSED");
 		}
 	}
 }
@@ -131,9 +133,12 @@ void PSCProxyServer::tickClients() {
 }
 
 void PSCProxyServer::closeInactiveClients() {
-	unsigned int i = 0;
-	while(i <= clients.size()) {
-		if(clients[i]->closed()) {
+	Clients::const_iterator end = clients.end();
+	for(Clients::iterator it = clients.begin(); it != end; ++it) {
+		if((*it)->closed()) {
+			pDebug("%s\n", "About to erase the inactive iterator...");
+			clients.erase(it);
+			delete *it;
 		}
 	}
 }
