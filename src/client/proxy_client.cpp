@@ -22,7 +22,8 @@
 
 using namespace PSCProxy;
 
-ProxyClient::ProxyClient(CardEmulator *initEmulator, ClientSocket *initClientSocket) {
+ProxyClient::ProxyClient(CardEmulator *initEmulator, ClientSocket *initClientSocket)
+: emulator(initEmulator), clientSocket(initClientSocket) {
 	pDebug("%s\n", "Creating instance of ProxyClient");
 }
 
@@ -31,8 +32,7 @@ ProxyClient::~ProxyClient() {
 }
 
 void ProxyClient::run() {
-	while(1) {
-		tick();
+	while(tick()) {
 		usleep(10e4);
 	}
 }

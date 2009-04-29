@@ -28,10 +28,14 @@
 #include "pscproxy_server.h"
 #include "debug.h"
 
+static PSCProxy::ProxyServer *server;
+
 static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
-	if(SIGSEGV == signal || SIGINT == signal || SIGTERM == signal) {
+	if(SIGINT == signal) {
+		server->exit();
+	} else if(SIGSEGV == signal || SIGINT == signal || SIGTERM == signal) {
 		int i, numOfBacktraceStrings;
 		void *buf[SIZE];
 		char **strings;
@@ -52,15 +56,14 @@ void enableSignalHandling() {
 	signal(SIGTERM, PSCProxySignalHandler);
 	signal(SIGUSR1, PSCProxySignalHandler);
 	signal(SIGPIPE, SIG_IGN);
-
 }
 
 int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
 	PSCProxy::CardReader *reader = new PSCProxy::DummyCardReader();
-	PSCProxy::ServerSocket *socket = new PSCProxy::ServerSocket(15000);
-	PSCProxy::ProxyServer *server = new PSCProxy::PSCProxyServer(reader, socket);
+	PSCProxy::ServerSocket *socket = new PSCProxy::ServerSocket(PSCProxy::defaultPort);
+	server = new PSCProxy::PSCProxyServer(reader, socket);
 
 	server->run();
 

@@ -54,41 +54,29 @@ void PSCProxyServer::Client::tick() {
 	}
 }
 
-bool PSCProxyServer::Client::newDataInSocket() {
-	fd_set descriptors;
-	struct timeval timev;
-
-	FD_ZERO(&descriptors);
-	FD_SET(socket, &descriptors);
-	timev.tv_sec = 0;
-	timev.tv_usec = 1;
-
-	int rc = select(socket + 2, &descriptors, NULL, NULL, &timev);
-	if(-1 == rc) {
-		perror("Error checking client socket state");
-	}
-
-	return (0 == rc? false : true);
-}
-
 int PSCProxyServer::Client::read(PacketData &data) {
 	return Socket::read(socket, data);
 }
 
+int PSCProxyServer::Client::write(PacketData const &data) {
+	return Socket::write(socket, data);
+}
+
 void PSCProxyServer::Client::checkAuth() {
-	if(newDataInSocket()) {
+	if(Socket::newDataInSocket(socket)) {
 		pDebug("%s\n", "There's new data in socket. Let's try to authenticate");
 		PacketData data;
 		read(data);
-		unsigned int len = data.getDataBuf()[0] + data.getDataBuf()[1] * 0x100;
-		pDebug("len=%d, data.getSize()=%d\n", len, data.getSize());
 		if(PSCProxyProtocol::parseAuth(data, user, pass)) {
+			PSCProxyProtocol::prepareAuthReply(data, true);
 			state = AUTHENTICATED;
 			pDebug("%s\n", "Changing state to AUTHENTICATED");
 		} else {
+			PSCProxyProtocol::prepareAuthReply(data, false);
 			state = CLOSED;
 			pDebug("%s\n", "Changing state to CLOSED");
 		}
+		write(data);
 	}
 }
 

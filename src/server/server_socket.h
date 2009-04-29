@@ -12,18 +12,9 @@ namespace PSCProxy {
 			bool newClientWaitingForConnection();
 			int connectWaitingClient();
 			void initClient();
-			//int write(PacketData const &data, unsigned int sockIdx);
-
-			//bool newDataInSocket(int desc);
-			//void checkDataInSockets();
-			//void tick();
-			//Sockets const &getReadReadySockets() const { return readReadySockets; }
 
 		protected:
 			void init(Port_t port);
-
-			//Sockets clientSockets;
-			//Sockets readReadySockets;
 	};
 }
 #endif // SERVER_SOCKET_H

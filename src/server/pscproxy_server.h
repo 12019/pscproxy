@@ -8,16 +8,14 @@
 
 namespace PSCProxy {
 	class PSCProxyServer : public ProxyServer {
-		public:
 			class Client {
-				public:
 					enum State {
 						INIT,
 						AUTHENTICATED,
-						//AUTH_FAILED,
 						CLOSED
 					};
 
+				public:
 					Client(int s, std::string initUser, std::string initPass);
 					~Client();
 
@@ -26,8 +24,8 @@ namespace PSCProxy {
 					void tick();
 
 				private:
-					bool newDataInSocket();
 					int read(PacketData &data);
+					int write(PacketData const &data);
 					void checkAuth();
 
 					State state;
@@ -39,6 +37,7 @@ namespace PSCProxy {
 
 			typedef std::vector<Client *> Clients;
 
+		public:
 			PSCProxyServer(CardReader *initReader, ServerSocket *initServerSocket);
 			virtual ~PSCProxyServer();
 

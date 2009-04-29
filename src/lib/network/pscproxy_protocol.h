@@ -8,10 +8,24 @@
 namespace PSCProxy {
 	class PSCProxyProtocol {
 		public:
-			static void prepareAuth(PacketData &data);
-			static bool parseAuth(PacketData const&data, std::string &user, std::string &pass);
-			static void prepareAuthReply(PacketData &data);
+			enum AuthResult {
+				AUTHORIZED,
+				UNAUTHORIZED
+			};
+			static void prepareAuth(PacketData &data, std::string const &user, std::string const &pass);
+			static bool parseAuth(PacketData const&data, std::string const &user, std::string const &pass);
+
+			static void prepareAuthReply(PacketData &data, bool authorized);
 			static bool parseAuthReply(PacketData const &data);
+
+		private:
+			enum PacketType {
+				AUTH_REQUEST,
+				AUTH_REPLY
+			};
+
+			static void setSize(char *buf, uint16_t size);
+			static uint16_t getSize(const char *buf);
 	};
 }
 

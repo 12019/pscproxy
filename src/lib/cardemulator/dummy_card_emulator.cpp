@@ -75,6 +75,8 @@ long unsigned DummyCardEmulator::tick() {
 	// TODO: Implement it!!
 	long unsigned ret = 0;
 
+	pDebug("%s\n", "Tick...");
+
 	prepareReadData();
 	if(readDataAvail())
 		ret |= ReadDataAvail;

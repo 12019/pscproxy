@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
 	PSCProxy::CardEmulator *emulator = new PSCProxy::DummyCardEmulator();
-	PSCProxy::ClientSocket *socket = new PSCProxy::ClientSocket("127.0.0.1", 15000);
+	PSCProxy::ClientSocket *socket = new PSCProxy::ClientSocket("127.0.0.1", PSCProxy::defaultPort);
 	PSCProxy::ProxyClient  *client = new PSCProxy::PSCProxyClient(emulator, socket);
 	client->run();
 

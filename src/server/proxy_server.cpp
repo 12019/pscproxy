@@ -23,7 +23,7 @@
 using namespace PSCProxy;
 
 ProxyServer::ProxyServer(CardReader *initReader, ServerSocket *initServerSocket)
-: reader(initReader), serverSocket(initServerSocket) {
+: reader(initReader), serverSocket(initServerSocket), exitRequested(false) {
 	pDebug("%s\n", "Creating instance of ProxyServer");
 }
 
@@ -41,7 +41,7 @@ Data_t const &ProxyServer::getAtr() const {
 }
 
 void ProxyServer::run() {
-	while(1) {
+	while(!exitRequested) {
 		tick();
 		usleep(10e4); // sleep for 1/100 sec
 	}

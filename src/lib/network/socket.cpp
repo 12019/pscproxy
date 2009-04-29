@@ -56,3 +56,19 @@ int Socket::read(int fileDescriptor, PacketData &data) {
 	return rc;
 }
 
+bool Socket::newDataInSocket(int socket) {
+	fd_set descriptors;
+	struct timeval timev;
+
+	FD_ZERO(&descriptors);
+	FD_SET(socket, &descriptors);
+	timev.tv_sec = 0;
+	timev.tv_usec = 1;
+
+	int rc = select(socket + 2, &descriptors, NULL, NULL, &timev);
+	if(-1 == rc) {
+		perror("Error checking client socket state");
+	}
+
+	return (0 == rc? false : true);
+}

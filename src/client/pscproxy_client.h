@@ -10,7 +10,22 @@ namespace PSCProxy {
 			PSCProxyClient(CardEmulator *initEmulator, ClientSocket *initClientSocket);
 			virtual ~PSCProxyClient();
 
-			virtual void tick();
+			virtual bool tick();
+			void checkAuthReply();
+
+		private:
+			enum State {
+				INIT,
+				AUTH_REQUESTED,
+				AUTHORIZED,
+				CLOSED
+			};
+
+			void authenticate();
+
+			State state;
+			std::string user, pass;
+			bool connected;
 	};
 }
 

@@ -14,10 +14,13 @@ namespace PSCProxy {
 
 			virtual void tick() = 0;
 			void run();
+			void exit() { exitRequested = true; }
 
 		protected:
 			CardReader   *reader;
 			ServerSocket *serverSocket;
+
+			bool exitRequested;
 			
 	};
 }

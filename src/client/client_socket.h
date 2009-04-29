@@ -14,6 +14,7 @@ namespace PSCProxy {
 			virtual int write(PacketData const &data);
 			virtual int read(PacketData &data);
 			friend ClientSocket &operator <<(ClientSocket &socket, PacketData &data);
+			bool newDataInSocket() const { return Socket::newDataInSocket(sockFileDesc); }
 
 		protected:
 			void init(std::string host, Port_t port);
