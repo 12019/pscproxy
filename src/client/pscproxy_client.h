@@ -11,7 +11,6 @@ namespace PSCProxy {
 			virtual ~PSCProxyClient();
 
 			virtual bool tick();
-			void checkAuthReply();
 
 		private:
 			enum State {
@@ -22,6 +21,8 @@ namespace PSCProxy {
 			};
 
 			void authenticate();
+			void checkAuthReply();
+			void handleEmulatorRequests();
 
 			State state;
 			std::string user, pass;

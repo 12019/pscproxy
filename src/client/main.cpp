@@ -37,14 +37,14 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #include "pscproxy_client.h"
 #include "season.h"
 
+static PSCProxy::ProxyClient *client;
 static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
-	if(SIGINT == signal) {
-		exit(0);
-	}
 
-	if(SIGSEGV == signal  || SIGTERM == signal) {
+	if(SIGINT == signal) {
+		client->exit();
+	} else if(SIGSEGV == signal  || SIGTERM == signal) {
 		int i, numOfBacktraceStrings;
 		void *buf[SIZE];
 		char **strings;
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 
 	PSCProxy::CardEmulator *emulator = new PSCProxy::DummyCardEmulator();
 	PSCProxy::ClientSocket *socket = new PSCProxy::ClientSocket("127.0.0.1", PSCProxy::defaultPort);
-	PSCProxy::ProxyClient  *client = new PSCProxy::PSCProxyClient(emulator, socket);
+	client = new PSCProxy::PSCProxyClient(emulator, socket);
 	client->run();
 
 	/*

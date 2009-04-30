@@ -22,6 +22,7 @@ namespace PSCProxy {
 			void prepareReadData(bool force = false);
 
 			time_t lastDataAvailTime;
+			bool resetAlreadyRequested;
 
 			Data_t readData;
 	};

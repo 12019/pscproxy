@@ -25,8 +25,8 @@
 
 using namespace PSCProxy;
 
-PSCProxyServer::Client::Client(int s, std::string initUser, std::string initPass)
-: state(INIT), socket(s), user(initUser), pass(initPass) {
+PSCProxyServer::Client::Client(int s, CardReader *initReader, std::string initUser, std::string initPass)
+: state(INIT), socket(s), user(initUser), pass(initPass), reader(initReader) {
 	pDebug("%s\n", "Creating instance of PSCProxyServer::Client");
 }
 
@@ -44,6 +44,7 @@ void PSCProxyServer::Client::tick() {
 			break;
 			
 		case AUTHENTICATED:
+			handleClientRequests();
 			break;
 
 		case CLOSED:
@@ -80,6 +81,21 @@ void PSCProxyServer::Client::checkAuth() {
 	}
 }
 
+void PSCProxyServer::Client::handleClientRequests() {
+	if(Socket::newDataInSocket(socket)) {
+		PacketData data;
+		read(data);
+		if(PSCProxyProtocol::parseResetRequest(data)) {
+			Data_t const &atr = reader->getAtr();
+			PSCProxyProtocol::prepareResetReply(data, atr);
+			write(data);
+		} else {
+			pDebug("%s\n", "Unknown packet. Changing state to CLOSED");
+			state = CLOSED;
+		}
+	}
+}
+
 PSCProxyServer::PSCProxyServer(CardReader *initReader, ServerSocket *initServerSocket)
 : ProxyServer(initReader, initServerSocket) {
 	pDebug("%s\n", "Creating instance of PSCProxyServer");
@@ -107,7 +123,7 @@ void PSCProxyServer::handleNewClients() {
 	if(serverSocket) {
 		int newDesc;
 		while(0 < (newDesc = serverSocket->connectWaitingClient())) {
-			clients.push_back(new Client(newDesc, std::string("Prezu"),
+			clients.push_back(new Client(newDesc, reader, std::string("Prezu"),
 						std::string("PrezuPass"))); // TODO: Implement client's configuration
 		}
 	}

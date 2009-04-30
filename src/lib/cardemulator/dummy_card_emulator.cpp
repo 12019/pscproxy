@@ -28,6 +28,7 @@ using namespace PSCProxy;
 DummyCardEmulator::DummyCardEmulator() {
 	pDebug("%s\n", "Creating instance of DummyCardReader");
 	lastDataAvailTime = time(NULL);
+	resetAlreadyRequested = false;
 	srand(lastDataAvailTime);
 
 	resetDelay = 1e6;
@@ -68,7 +69,12 @@ void DummyCardEmulator::write(Data_t const &data) {
 
 bool DummyCardEmulator::resetRequested() {
 	// TODO: Implement it!!
-	return false;
+	if(resetAlreadyRequested) {
+		return false;
+	}
+
+	resetAlreadyRequested = true;
+	return true;
 }
 
 long unsigned DummyCardEmulator::tick() {

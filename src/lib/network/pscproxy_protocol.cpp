@@ -27,52 +27,37 @@ void PSCProxyProtocol::prepareAuth(PacketData &data, std::string const &user, st
 	unsigned int passLen = pass.size();
 	uint16_t size = sizeof(uint16_t) + 1 + (user.size() + 1) + (pass.size() + 1);
 	char buf[size];
-	char *s;
+	char *c;
         unsigned int i;
 
 	setSize(buf, size);
 
-	s = buf + 2; // packet type
-	*(s++) = AUTH_REQUEST;
+	c = buf + 2; // packet type
+	*(c++) = AUTH_REQUEST;
 
 	for(i = 0; i < userLen; i++) {
-            *(s++) = user[i];
+            *(c++) = user[i];
 	}
-        *(s++) = 0;
+        *(c++) = 0;
         for(i = 0; i < passLen; i++) {
-            *(s++) = pass[i];
+            *(c++) = pass[i];
         }
-        *(s++) = 0;
+        *(c++) = 0;
 
 	data.setData(buf, size);
 }
 
 bool PSCProxyProtocol::parseAuth(PacketData const&data, std::string const &user, std::string const &pass) {
-	if(0 == data.getSize()) {
-		pDebug("%s\n", "data empty! Auth failed!");
+	if(!checkPacketSanity(data, AUTH_REQUEST)) {
+		pDebug("%s\n", "Paktet doesn't look sane..");
 		return false;
 	}
 
-        const char *dataBuf = data.getDataBuf();
-        const char *c;
-        uint16_t size = getSize(dataBuf);
-	int i;
-
-        if(size != data.getSize()) {
-            pDebug("Wrong data size! size=%u, data.getSize()=%u\n", size, data.getSize());
-            return false;
-        }
-        
-	c = dataBuf + 2;
-	if(*(c++) != AUTH_REQUEST) {
-		pDebug("%s\n", "Wrong packet type on handshake!! Should be AUTH_REQUEST");
-		return false;
-	}
-
-	i = 0;
+	int i = 0;
+	const char *c = data.getDataBuf() + 3;
 	while(*c != 0 || user[i] != 0) {
 		if(*(c++) != user[i++]) {
-			pDebug("Wrong user! Check failed at pos %d. (dataBuf + 3)=%s, user=%s\n", i - 1, dataBuf + 3, user.c_str());
+			pDebug("Wrong user! Check failed at pos %d. (dataBuf + 3)=%s, user=%s\n", i - 1, data.getDataBuf() + 3, user.c_str());
 			return false;
 		}
 	}
@@ -95,14 +80,82 @@ void PSCProxyProtocol::prepareAuthReply(PacketData &data, bool authorized) {
 
 	setSize(buf, size);
 
-	char *s = buf + 2; // Packet type
-	*(s++) = AUTH_REPLY;
+	char *c = buf + 2; // Packet type
+	*(c++) = AUTH_REPLY;
 
-	*s = authorized? AUTHORIZED : UNAUTHORIZED; // Authorization result
+	*c = authorized? AUTHORIZED : UNAUTHORIZED; // Authorization result
 	data.setData(buf, size);
 }
 
 bool PSCProxyProtocol::parseAuthReply(PacketData const &data) {
+	if(!checkPacketSanity(data, AUTH_REPLY)) {
+		pDebug("%s\n", "Paktet doesn't look sane..");
+		return false;
+	}
+
+	const char *c = data.getDataBuf() + 3;
+	pDebug("Returning: %s\n", (AUTHORIZED == *c)? "AUTHORIZED" : "UNAUTHORIZED");
+	return (AUTHORIZED == *c)? true : false;
+}
+
+void PSCProxyProtocol::prepareResetRequest(PacketData &data) {
+	uint16_t size = sizeof(size) + sizeof(uint8_t);
+	char buf[size];
+
+	setSize(buf, size);
+	char *c = buf + 2; // Packet type
+	*c = RESET_REQUEST;
+	data.setData(buf, size);
+}
+
+bool PSCProxyProtocol::parseResetRequest(PacketData const &data) {
+	return checkPacketSanity(data, RESET_REQUEST);
+}
+
+void PSCProxyProtocol::prepareResetReply(PacketData &data, Data_t const &atr) {
+	pDebug("%s\n", "Preparing reset reply");
+	uint16_t atrSize = atr.size();
+	uint16_t size = sizeof(size) + sizeof(uint8_t) + atrSize;
+	char buf[size];
+
+	pDebug("ATR size is %u, size is %u\n", atrSize, size);
+
+	setSize(buf, size);
+	char *c = buf + 2; // Packet type
+	*(c++) = RESET_REPLY;
+	for(int i = 0; i < atrSize; i++) {
+		pDebug("Adding byte %x\n", atr[i]);
+		*(c++) = atr[i];
+	}
+	data.setData(buf, size);
+}
+
+bool PSCProxyProtocol::parseResetReply(PacketData const &data, Data_t &buf) {
+	if(!checkPacketSanity(data, RESET_REPLY)) {
+		pDebug("%s\n", "Paktet doesn't look sane..");
+		return false;
+	}
+
+	const char *c = data.getDataBuf() + 3;
+	unsigned int atrSize = data.getSize() - 3; // Header is 3 bytes long
+	buf.clear();
+	for(unsigned int i = 0; i < atrSize; i++) {
+		buf.push_back(*(c++));
+	}
+
+	return true;
+}
+
+void PSCProxyProtocol::setSize(char *buf, uint16_t size) {
+	buf[0] = (size >> 8);
+	buf[1] = size & 0x00ff;
+}
+
+uint16_t PSCProxyProtocol::getSize(const char *buf) {
+	return (buf[0] << 8) + buf[1];
+}
+
+bool PSCProxyProtocol::checkPacketSanity(PacketData const &data, PacketType type) {
 	if(0 == data.getSize()) {
 		pDebug("%s\n", "data empty! Auth failed!");
 		return false;
@@ -118,20 +171,10 @@ bool PSCProxyProtocol::parseAuthReply(PacketData const &data) {
 	}
 
 	c = dataBuf + 2; // Packet type
-	if(AUTH_REPLY != *(c++)) {
+	if(type != *(c++)) {
 		pDebug("Wrong packet type (%x)!!", *(dataBuf + 2));
 		return false;
 	}
 
-	pDebug("Returning: %s\n", (AUTHORIZED == *c)? "AUTHORIZED" : "UNAUTHORIZED");
-	return (AUTHORIZED == *c)? true : false;
-}
-
-void PSCProxyProtocol::setSize(char *buf, uint16_t size) {
-	buf[0] = (size >> 8);
-	buf[1] = size & 0x00ff;
-}
-
-uint16_t PSCProxyProtocol::getSize(const char *buf) {
-	return (buf[0] << 8) + buf[1];
+	return true;
 }

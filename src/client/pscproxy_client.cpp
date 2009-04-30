@@ -49,6 +49,7 @@ bool PSCProxyClient::tick() {
 			case AUTHORIZED:
 				pDebug("%s\n", " IN AUTHORIZED STATE!!");
 				emulator->tick();
+				handleEmulatorRequests();
 				break;
 
 			case CLOSED:
@@ -90,3 +91,23 @@ void PSCProxyClient::checkAuthReply() {
 		return;
 	}
 }
+
+void PSCProxyClient::handleEmulatorRequests() {
+	if(emulator->resetRequested()) {
+		pDebug("%s\n", "Requested Reset! Handling it...");
+		PacketData data;
+		PSCProxyProtocol::prepareResetRequest(data);
+		clientSocket->write(data);
+		clientSocket->read(data);
+
+		Data_t atr;
+		if(!PSCProxyProtocol::parseResetReply(data, atr)) {
+			pDebug("%s\n", "Failed to parse reset reply! Changing state to CLOSED");
+			state = CLOSED;
+			return;
+		}
+
+		emulator->write(atr);
+	}
+}
+

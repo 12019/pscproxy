@@ -28,13 +28,17 @@
 #include "pscproxy_server.h"
 #include "debug.h"
 
-static PSCProxy::ProxyServer *server;
+static PSCProxy::ProxyServer *server = NULL;
 
 static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
 	if(SIGINT == signal) {
-		server->exit();
+		if(server) {
+			server->exit();
+		} else {
+			abort();
+		}
 	} else if(SIGSEGV == signal || SIGINT == signal || SIGTERM == signal) {
 		int i, numOfBacktraceStrings;
 		void *buf[SIZE];

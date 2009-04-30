@@ -33,6 +33,14 @@ DummyCardReader::DummyCardReader()
 	resetDelay = 1e6;
 	dataTXDelay = commandDelay = 2e5;
 	timeoutDelay = 1e6;
+
+	atr.push_back(0x3B);
+	atr.push_back(0x24);
+	atr.push_back(0x00);
+	atr.push_back(0x30);
+	atr.push_back(0x42);
+	atr.push_back(0x30);
+	atr.push_back(0x30);
 }
 
 DummyCardReader::~DummyCardReader() {

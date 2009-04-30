@@ -16,7 +16,7 @@ namespace PSCProxy {
 					};
 
 				public:
-					Client(int s, std::string initUser, std::string initPass);
+					Client(int s, CardReader *initReader, std::string initUser, std::string initPass);
 					~Client();
 
 					bool closed() const { return CLOSED == state? true : false; }
@@ -27,12 +27,14 @@ namespace PSCProxy {
 					int read(PacketData &data);
 					int write(PacketData const &data);
 					void checkAuth();
+					void handleClientRequests();
 
 					State state;
 					int  socket;
 					bool authenticated;
 
 					std::string user, pass;
+					CardReader *reader;
 			};
 
 			typedef std::vector<Client *> Clients;

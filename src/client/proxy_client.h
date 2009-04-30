@@ -12,10 +12,12 @@ namespace PSCProxy {
 
 			virtual bool tick() = 0;
 			void run();
+			void exit() { exitRequested = true; }
 
 		protected:
 			CardEmulator *emulator;
 			ClientSocket *clientSocket;
+			bool exitRequested;
 	};
 }
 
