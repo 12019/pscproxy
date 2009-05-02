@@ -26,10 +26,10 @@ using namespace PSCProxy;
 
 CardReader::CardReader(CardReaderConfig const &initConfig)
 : config(initConfig) {
-	std::cout << "Creating instance of CardReader..." << std::endl;
+	pDebug("%s\n", "Creating instance of CardReader...");
 }
 
 CardReader::~CardReader() {
-	std::cout << "Destroying instance of CardReader..." << std::endl;
+	pDebug("%s\n", "Destroying instance of CardReader...");
 }
 

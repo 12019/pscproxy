@@ -20,6 +20,7 @@ namespace PSCProxy {
 				CLOSED
 			};
 
+			int read(PacketData &data);
 			void authenticate();
 			void checkAuthReply();
 			void handleEmulatorRequests();

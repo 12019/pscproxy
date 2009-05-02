@@ -109,28 +109,26 @@ void PSCProxyProtocol::prepareResetRequest(PacketData &data) {
 }
 
 bool PSCProxyProtocol::parseResetRequest(PacketData const &data) {
+	pqDebug("%s\n", "Checking if RESET_REQUEST...");
 	return checkPacketSanity(data, RESET_REQUEST);
 }
 
 void PSCProxyProtocol::prepareResetReply(PacketData &data, Data_t const &atr) {
-	pDebug("%s\n", "Preparing reset reply");
 	uint16_t atrSize = atr.size();
 	uint16_t size = sizeof(size) + sizeof(uint8_t) + atrSize;
 	char buf[size];
-
-	pDebug("ATR size is %u, size is %u\n", atrSize, size);
 
 	setSize(buf, size);
 	char *c = buf + 2; // Packet type
 	*(c++) = RESET_REPLY;
 	for(int i = 0; i < atrSize; i++) {
-		pDebug("Adding byte %x\n", atr[i]);
 		*(c++) = atr[i];
 	}
 	data.setData(buf, size);
 }
 
 bool PSCProxyProtocol::parseResetReply(PacketData const &data, Data_t &buf) {
+	pDebug("%s\n", "Checking if RESET_REPLY...");
 	if(!checkPacketSanity(data, RESET_REPLY)) {
 		pDebug("%s\n", "Paktet doesn't look sane..");
 		return false;
@@ -143,7 +141,110 @@ bool PSCProxyProtocol::parseResetReply(PacketData const &data, Data_t &buf) {
 		buf.push_back(*(c++));
 	}
 
+	pDebug("%s\n", "RESET_REPLY.");
 	return true;
+}
+
+void PSCProxyProtocol::prepareCmdRequest(PacketData &data, Data_t const &cmd) {
+	unsigned int cmdLen = cmd.size();
+	uint16_t size = sizeof(size) + sizeof(uint8_t) + cmdLen;
+	char buf[size];
+
+	setSize(buf, size);
+
+	char *c = buf + 2; // Packet type
+	*(c++) = CMD_REQUEST;
+
+	for(unsigned int i = 0; i < cmdLen; i++) {
+		*(c++) = cmd[i];
+	}
+	data.setData(buf, size);
+}
+
+bool PSCProxyProtocol::parseCmdRequest(PacketData const &data, Data_t &cmd) {
+	pDebug("%s\n", "Checking if CMD_REQUEST...");
+	if(!checkPacketSanity(data, CMD_REQUEST)) {
+		pDebug("%s\n", "Paktet doesn't look sane..");
+		return false;
+	}
+
+	const char *c = data.getDataBuf() + 3;
+	unsigned int cmdLen = data.getSize() - 3; // The command itself is full packet - 3 bytes of header
+	cmd.clear();
+	for(unsigned int i = 0; i < cmdLen; i++) {
+		cmd.push_back(*(c++));
+	}
+
+	pDebug("%s\n", "CMD_REQUEST.");
+	return true;
+}
+
+void PSCProxyProtocol::prepareCmdReply(PacketData &data, Data_t const &cmdReply) {
+	unsigned int cmdReplyLen = cmdReply.size();
+	uint16_t size = sizeof(size) + sizeof(uint8_t) + cmdReplyLen;
+	char buf[size];
+
+	setSize(buf, size);
+
+	char *c = buf + 2; // Packet type
+	*(c++) = CMD_REPLY;
+	for(unsigned int i = 0; i < cmdReplyLen; i++) {
+		*(c++) = cmdReply[i];
+	}
+	data.setData(buf, size);
+}
+
+bool PSCProxyProtocol::parseCmdReply(PacketData const &data, Data_t &cmdReply) {
+	pDebug("%s\n", "Checking if CMD_REPLY...");
+	if(!checkPacketSanity(data, CMD_REPLY)) {
+		pDebug("%s\n", "Paktet doesn't look sane..");
+		return false;
+	}
+
+	const char *c = data.getDataBuf() + 3;
+	unsigned int cmdReplyLen = data.getSize() - 3; // The command reply itself is full packet - 3 bytes of header
+	for(unsigned int i = 0; i < cmdReplyLen; i++) {
+		cmdReply.push_back(*(c++));
+	}
+
+	pDebug("%s\n", "CMD_REPLY.");
+	return true;
+}
+
+int PSCProxyProtocol::read(PacketData &data, int socket) {
+	PacketData header;
+	int rc = Socket::read(socket, header, 3);
+	if(0 > rc) {
+		pDebug("Error while reading from socket! Returning rc=%d\n", rc);
+		return rc;
+	}
+#if 0
+	std::cout << "header.getDataBuf()[0]=" << std::hex << header.getDataBuf()[0] <<
+		" header.getDataBuf()[1]=" << std::hex << header.getDataBuf()[1] << std::endl;
+	pDebug("header.getSize()=%u, header.getDataBuf()[0]=%x, header.getDataBuf()[1]=%x\n",
+			header.getSize(), (int)header.getDataBuf()[0], (int)header.getDataBuf()[1]);
+#endif
+
+	data = header;
+	uint16_t size = getSize(header.getDataBuf());
+#if 0
+	std::cout << "data.getDataBuf()[0]=" << std::hex << data.getDataBuf()[0] <<
+		" data.getDataBuf()[1]=" << std::hex << data.getDataBuf()[1] << std::endl;
+	pDebug("data.getSize()=%u, data.getDataBuf()[0]=%x, data.getDataBuf()[1]=%x, size=%d\n",
+			data.getSize(), (int)data.getDataBuf()[0], (int)data.getDataBuf()[1], size);
+#endif
+	if(size > 3) {
+		PacketData body;
+		pDebug("Some longer packet. size=%u, so still %u bytes to read.\n", size, size - 3);
+		rc = Socket::read(socket, body, size - 3);
+		if(0 > rc) {
+			pDebug("Error while reading from socket! Returning rc=%d\n", rc);
+			return rc;
+		}
+		data = data + body;
+	}
+
+	return data.getSize();
 }
 
 void PSCProxyProtocol::setSize(char *buf, uint16_t size) {
@@ -152,7 +253,7 @@ void PSCProxyProtocol::setSize(char *buf, uint16_t size) {
 }
 
 uint16_t PSCProxyProtocol::getSize(const char *buf) {
-	return (buf[0] << 8) + buf[1];
+	return ((uint16_t)(buf[0] << 8) | (uint16_t)(buf[1] & 0x00ff));
 }
 
 bool PSCProxyProtocol::checkPacketSanity(PacketData const &data, PacketType type) {

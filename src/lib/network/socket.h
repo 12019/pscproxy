@@ -14,7 +14,10 @@ namespace PSCProxy {
 
 			static int write(int fileDescriptor, PacketData const &data);
 			static int read(int fileDescriptor, PacketData &data);
+			static int read(int fileDescriptor, PacketData &data, unsigned int size);
 			static bool newDataInSocket(int socket);
+
+			int socket() const { return sockFileDesc; }
 
 		protected:
 			int sockFileDesc;

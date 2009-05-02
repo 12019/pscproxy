@@ -24,27 +24,37 @@ using namespace PSCProxy;
 
 PacketData::PacketData()
 : size(0), data(NULL) {
-	pDebug("%s\n", "Creating instance of PacketData");
 }
 
 PacketData::PacketData(std::string const &newData)
 : size(0), data(NULL) {
-	pDebug("%s\n", "Creating instance of PacketData with initialization");
 	setData(newData);
 }
 
+PacketData::PacketData(const char *initData, unsigned int initSize)
+: size(initSize) {
+	data = new char[size];
+	for(unsigned int i = 0; i < size; i++) {
+		data[i] = initData[i];
+	}
+}
+
+PacketData::PacketData(const PacketData &rhs)
+: size(rhs.size) {
+	data = new char[size];
+	for(unsigned int i = 0; i < size; i++) {
+		data[i] = rhs.data[i];
+	}
+}
+
 PacketData::~PacketData() {
-	pDebug("%s\n", "Destroyng  instance of PacketData");
 	if(data) {
-		pDebug("%s\n", "DataPacket not empty. Deleting it's data");
 		delete[] data;
 	}
 }
 
 void PacketData::clear() {
-	pDebug("About to clear...data=%p\n", data);
 	if(data) {
-		pDebug("Not NULL (%p), deleting\n", data);
 		delete[] data;
 		data = NULL;
 	}
@@ -68,5 +78,37 @@ void PacketData::setData(char const *newData, int newSize) {
 	for(unsigned int i = 0; i < size; i++) {
 		data[i] = newData[i];
 	}
+}
+
+PacketData PacketData::operator +(PacketData const &rhs) {
+	unsigned int newSize = size + rhs.size;
+	char newData[newSize];
+	unsigned int i;
+	for(i = 0; i < size; i++) {
+		newData[i] = data[i];
+	}
+	for(i = 0; i < rhs.size; i++) {
+		newData[size + i] = rhs.data[i];
+	}
+
+	return PacketData(newData, newSize);
+}
+
+PacketData &PacketData::operator =(const PacketData &rhs) {
+	if(this == &rhs) {
+		return *this;
+	}
+
+	if(data) {
+		delete[] data;
+		data = NULL;
+	}
+	size = rhs.size;
+	data = new char[size];
+	for(unsigned int i = 0; i < size; i++) {
+		data[i] = rhs.data[i];
+	}
+
+	return *this;
 }
 

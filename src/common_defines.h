@@ -7,7 +7,7 @@
 
 namespace PSCProxy {
 	typedef std::vector<unsigned char> Data_t;
-	const Port_t defaultPort = 15005;
+	const Port_t defaultPort = 15004;
 }
 
 #endif // COMMON_DEFINES_H

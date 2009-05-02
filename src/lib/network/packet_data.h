@@ -8,6 +8,8 @@ namespace PSCProxy {
 		public:
 			PacketData();
 			PacketData(std::string const &newData);
+			PacketData(const char *initData, unsigned int initSize);
+			PacketData(const PacketData &rhs);
 			virtual ~PacketData();
 			virtual void clear();
 
@@ -16,6 +18,9 @@ namespace PSCProxy {
 			virtual std::string getData() const { return data; }
 			virtual const char *getDataBuf() const { return data; }
 			virtual unsigned int getSize() const { return size; }
+
+			PacketData operator +(PacketData const &rhs);
+			PacketData &operator =(const PacketData &rhs);
 
 			static unsigned int maxLen() { return 1024; }
 

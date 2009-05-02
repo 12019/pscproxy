@@ -17,10 +17,11 @@
  * along with PSCProxy.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <csignal>
-#include <execinfo.h>
 #include <cstdlib>
+#include <execinfo.h>
+#include <iostream>
+#include <memory>
 
 //#include "phoenix.h"
 #include "dummy_cardreader.h"
@@ -28,14 +29,16 @@
 #include "pscproxy_server.h"
 #include "debug.h"
 
-static PSCProxy::ProxyServer *server = NULL;
+static PSCProxy::ProxyServer *serverGlobalPtr = NULL;
 
 static void PSCProxySignalHandler(int signal) {
 #define SIZE 100
 	std::cerr << "Caught " << signal << " signal!!" << std::endl;
+	pDebug("SIGINT=%d, SIGSEGV=%d, SIGINT=%d, SIGTERM=%d\n",
+			SIGINT, SIGSEGV, SIGINT, SIGTERM);
 	if(SIGINT == signal) {
-		if(server) {
-			server->exit();
+		if(serverGlobalPtr) {
+			serverGlobalPtr->exit();
 		} else {
 			abort();
 		}
@@ -65,9 +68,10 @@ void enableSignalHandling() {
 int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
-	PSCProxy::CardReader *reader = new PSCProxy::DummyCardReader();
-	PSCProxy::ServerSocket *socket = new PSCProxy::ServerSocket(PSCProxy::defaultPort);
-	server = new PSCProxy::PSCProxyServer(reader, socket);
+	std::auto_ptr<PSCProxy::CardReader> reader(new PSCProxy::DummyCardReader());
+	std::auto_ptr<PSCProxy::ServerSocket> socket(new PSCProxy::ServerSocket(PSCProxy::defaultPort));
+
+	std::auto_ptr<PSCProxy::ProxyServer> server(new PSCProxy::PSCProxyServer(reader.get(), socket.get()));
 
 	server->run();
 

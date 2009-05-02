@@ -25,12 +25,23 @@ namespace PSCProxy {
 			static void prepareResetReply(PacketData &data, Data_t const &atr);
 			static bool parseResetReply(PacketData const &data, Data_t &buf);
 
+			static void prepareCmdRequest(PacketData &data, Data_t const &cmd);
+			static bool parseCmdRequest(PacketData const &data, Data_t &cmd);
+
+			static void prepareCmdReply(PacketData &data, Data_t const &cmdReply);
+			static bool parseCmdReply(PacketData const &data, Data_t &cmdReply);
+
+			static int read(PacketData &data, int socket);
+			static int read(PacketData &data, Socket &socket) { return read(data, socket.socket()); }
+
 		private:
 			enum PacketType {
 				AUTH_REQUEST,
 				AUTH_REPLY,
 				RESET_REQUEST,
-				RESET_REPLY
+				RESET_REPLY,
+				CMD_REQUEST,
+				CMD_REPLY
 			};
 
 			static void setSize(char *buf, uint16_t size);

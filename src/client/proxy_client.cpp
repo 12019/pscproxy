@@ -33,7 +33,7 @@ ProxyClient::~ProxyClient() {
 
 void ProxyClient::run() {
 	while((!exitRequested) && tick()) {
-		usleep(10e4);
+		usleep(10e3);
 	}
 }
 

@@ -11,7 +11,7 @@ namespace PSCProxy {
 			class Client {
 					enum State {
 						INIT,
-						AUTHENTICATED,
+						AUTHORIZED,
 						CLOSED
 					};
 
@@ -26,6 +26,7 @@ namespace PSCProxy {
 				private:
 					int read(PacketData &data);
 					int write(PacketData const &data);
+					bool newDataInSocket() const { return Socket::newDataInSocket(socket); }
 					void checkAuth();
 					void handleClientRequests();
 

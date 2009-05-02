@@ -43,7 +43,7 @@ Data_t const &ProxyServer::getAtr() const {
 void ProxyServer::run() {
 	while(!exitRequested) {
 		tick();
-		usleep(10e4); // sleep for 1/100 sec
+		usleep(10e3); // sleep for 1/1000 sec
 	}
 }
 

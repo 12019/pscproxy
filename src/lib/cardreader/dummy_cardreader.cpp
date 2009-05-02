@@ -60,7 +60,7 @@ void DummyCardReader::read(Data_t &result) {
 
 void DummyCardReader::write(Data_t const &data) {
 	for(unsigned int i = 0; i < data.size(); i++) {
-		usleep(dataTXDelay);
+		//usleep(dataTXDelay);
 	}
 
 	// Card normally has to reply

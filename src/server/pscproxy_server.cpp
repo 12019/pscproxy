@@ -43,7 +43,7 @@ void PSCProxyServer::Client::tick() {
 			checkAuth();
 			break;
 			
-		case AUTHENTICATED:
+		case AUTHORIZED:
 			handleClientRequests();
 			break;
 
@@ -56,7 +56,7 @@ void PSCProxyServer::Client::tick() {
 }
 
 int PSCProxyServer::Client::read(PacketData &data) {
-	return Socket::read(socket, data);
+	return PSCProxyProtocol::read(data, socket);
 }
 
 int PSCProxyServer::Client::write(PacketData const &data) {
@@ -67,11 +67,15 @@ void PSCProxyServer::Client::checkAuth() {
 	if(Socket::newDataInSocket(socket)) {
 		pDebug("%s\n", "There's new data in socket. Let's try to authenticate");
 		PacketData data;
-		read(data);
+		if(0 > read(data)) {
+			state = CLOSED;
+			return;
+		}
+
 		if(PSCProxyProtocol::parseAuth(data, user, pass)) {
 			PSCProxyProtocol::prepareAuthReply(data, true);
-			state = AUTHENTICATED;
-			pDebug("%s\n", "Changing state to AUTHENTICATED");
+			state = AUTHORIZED;
+			pDebug("%s\n", "Changing state to AUTHORIZED");
 		} else {
 			PSCProxyProtocol::prepareAuthReply(data, false);
 			state = CLOSED;
@@ -82,13 +86,41 @@ void PSCProxyServer::Client::checkAuth() {
 }
 
 void PSCProxyServer::Client::handleClientRequests() {
-	if(Socket::newDataInSocket(socket)) {
+	if(newDataInSocket()) {
+		pqDebug("%s\n", "Some new data in socket, checking what request is this");
 		PacketData data;
-		read(data);
+		Data_t cardData;
+		pDebug("%s\n", "Reading...");
+		int rc = read(data);
+		pDebug("Got %d bytes from read\n", rc);
+		if(0 > rc) {
+			state = CLOSED;
+			return;
+		}
+
 		if(PSCProxyProtocol::parseResetRequest(data)) {
+			pDebug("%s\n", "Looks like Reset Request. Getting atr from the reader... ");
 			Data_t const &atr = reader->getAtr();
+			pqDebug("%s\n", "Done.");
+			pDebug("%s\n", "Now preparing reset reply... ");
 			PSCProxyProtocol::prepareResetReply(data, atr);
+			pqDebug("%s\n", "Done.");
+			pDebug("%s\n", "Writing reset reply to the client socket... ");
 			write(data);
+			pqDebug("%s\n", "Done.");
+		} else if(PSCProxyProtocol::parseCmdRequest(data, cardData)) {
+			pDebug("%s\n", "Looks like CMD Request. Writing command to the reader... ");
+			reader->write(cardData);
+			pqDebug("%s\n", "Done.");
+			pDebug("%s\n", "Reading replay to the command from the reader... ");
+			reader->read(cardData);
+			pqDebug("%s\n", "Done.");
+			pDebug("%s\n", "Preparing CMD Reply... ");
+			PSCProxyProtocol::prepareCmdReply(data, cardData);
+			pqDebug("%s\n", "Done.");
+			pDebug("%s\n", "Writing CMD Reply to the client socket... ");
+			write(data);
+			pqDebug("%s\n", "Done.");
 		} else {
 			pDebug("%s\n", "Unknown packet. Changing state to CLOSED");
 			state = CLOSED;

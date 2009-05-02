@@ -61,10 +61,11 @@ void DummyCardEmulator::read(Data_t &result) {
 
 void DummyCardEmulator::write(Data_t const &data) {
 	for(unsigned int i = 0; i < data.size(); i++) {
-		usleep(dataTXDelay);
+		//usleep(dataTXDelay);
 	}
 
-	prepareReadData(true);
+	//prepareReadData(true);
+	prepareReadData(false);
 }
 
 bool DummyCardEmulator::resetRequested() {
@@ -80,8 +81,6 @@ bool DummyCardEmulator::resetRequested() {
 long unsigned DummyCardEmulator::tick() {
 	// TODO: Implement it!!
 	long unsigned ret = 0;
-
-	pDebug("%s\n", "Tick...");
 
 	prepareReadData();
 	if(readDataAvail())
