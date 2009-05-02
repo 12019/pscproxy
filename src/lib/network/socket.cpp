@@ -19,8 +19,9 @@
 
 #include <exception>
 
-#include <sys/types.h>
+#include <poll.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "debug.h"
@@ -61,7 +62,6 @@ int Socket::write(int fileDescriptor, PacketData const &data) {
 }
 
 int Socket::read(int fileDescriptor, PacketData &data) {
-	//char *buf = new char[PacketData::maxLen()];
 	char buf[PacketData::maxLen()];
 	int rc = ::read(fileDescriptor, buf, PacketData::maxLen());
 	if(0 < rc) {
@@ -69,7 +69,6 @@ int Socket::read(int fileDescriptor, PacketData &data) {
 	} else {
 		data.clear();
 	}
-	//delete[] buf;
 
 	return rc;
 }
@@ -80,9 +79,9 @@ int Socket::read(int fileDescriptor, PacketData &data, unsigned int size) {
 	char buf[size];
 	PacketData tmpData;
 	time_t startTime = time(NULL);
+	data.clear();
 	while(r < size) {
 		if(time(NULL) - startTime >= 10) {
-			data.clear();
 			pDebug("%s\n", "Timeout!! Returning -1");
 			return -1;
 		}
@@ -94,6 +93,13 @@ int Socket::read(int fileDescriptor, PacketData &data, unsigned int size) {
 			return -1;
 		}
 		r += rc;
+		if(0 == rc) {
+			// If read() returned no data, we better check if the socket is still valid
+			if(!valid(fileDescriptor)) {
+				return -1;
+			}
+		}
+
 		pDebug("Got %u. size=%u, so still %u bytes to go... rc=%d\n", r, size, size - r, rc);
 		usleep(10e3); // 1 / 1000[sec]
 	}
@@ -121,3 +127,29 @@ bool Socket::newDataInSocket(int socket) {
 
 	return (0 == rc? false : true);
 }
+
+bool Socket::valid(int socket) {
+	pollfd pfd;
+	pfd.fd = socket;
+	pfd.events = POLLRDHUP;
+	int rc = poll(&pfd, 1, 1);
+	if(0 > rc) {
+		perror("Error while validating socket");
+		return false;
+	}
+
+	if(0 == rc) {
+		pDebug("%s\n", "poll() timed out. Returning: socket invalid");
+		return false;
+	}
+
+#ifdef DEBUG
+	// Compile-out for release...
+	if(POLLRDHUP == (pfd.revents & POLLRDHUP)) {
+		pDebug("%s\n", "Remote peer closed connection. Socket invalid!");
+	}
+#endif // DEBUG
+
+	return (0 == pfd.revents)? true : false;
+}
+

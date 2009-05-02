@@ -218,21 +218,9 @@ int PSCProxyProtocol::read(PacketData &data, int socket) {
 		pDebug("Error while reading from socket! Returning rc=%d\n", rc);
 		return rc;
 	}
-#if 0
-	std::cout << "header.getDataBuf()[0]=" << std::hex << header.getDataBuf()[0] <<
-		" header.getDataBuf()[1]=" << std::hex << header.getDataBuf()[1] << std::endl;
-	pDebug("header.getSize()=%u, header.getDataBuf()[0]=%x, header.getDataBuf()[1]=%x\n",
-			header.getSize(), (int)header.getDataBuf()[0], (int)header.getDataBuf()[1]);
-#endif
 
 	data = header;
 	uint16_t size = getSize(header.getDataBuf());
-#if 0
-	std::cout << "data.getDataBuf()[0]=" << std::hex << data.getDataBuf()[0] <<
-		" data.getDataBuf()[1]=" << std::hex << data.getDataBuf()[1] << std::endl;
-	pDebug("data.getSize()=%u, data.getDataBuf()[0]=%x, data.getDataBuf()[1]=%x, size=%d\n",
-			data.getSize(), (int)data.getDataBuf()[0], (int)data.getDataBuf()[1], size);
-#endif
 	if(size > 3) {
 		PacketData body;
 		pDebug("Some longer packet. size=%u, so still %u bytes to read.\n", size, size - 3);
