@@ -38,7 +38,7 @@ bool PSCProxyClient::tick() {
 		switch(state) {
 			case INIT:
 				pDebug("%s\n", " IN INIT STATE!!");
-				authenticate();
+				authorize();
 				break;
 
 			case AUTH_REQUESTED:
@@ -47,6 +47,16 @@ bool PSCProxyClient::tick() {
 				break;
 
 			case AUTHORIZED:
+				pDebug("%s\n", " IN AUTHORIZED STATE!!");
+				requestATR();
+				break;
+
+			case AWAITING_ATR:
+				pDebug("%s\n", " IN AWAITING_ATR STATE!!");
+				cacheATR();
+				break;
+
+			case IDLE:
 				emulator->tick();
 				handleEmulatorRequests();
 				break;
@@ -69,7 +79,7 @@ int PSCProxyClient::read(PacketData &data) {
 	return PSCProxyProtocol::read(data, clientSocket->socket());
 }
 
-void PSCProxyClient::authenticate() {
+void PSCProxyClient::authorize() {
 	PacketData data;
 	PSCProxyProtocol::prepareAuth(data, user, pass);
 	clientSocket->write(data);
@@ -89,6 +99,34 @@ void PSCProxyClient::checkAuthReply() {
 		}
 
 		return;
+	}
+}
+
+void PSCProxyClient::requestATR() {
+	PacketData data;
+	PSCProxyProtocol::prepareResetRequest(data);
+	if(0 < clientSocket->write(data)) {
+		state = AWAITING_ATR;
+	} else {
+		state = CLOSED;
+	}
+}
+
+void PSCProxyClient::cacheATR() {
+	if(clientSocket->newDataInSocket()) {
+		pDebug("%s\n", "Got new data");
+		PacketData data;
+		if(0 > read(data)) {
+			state = CLOSED;
+			return;
+		}
+
+		if(!PSCProxyProtocol::parseResetReply(data, atr)) {
+			pDebug("%s\n", "Failed while parsing reset reply");
+			state = CLOSED;
+			return;
+		}
+		state = IDLE;
 	}
 }
 
@@ -134,15 +172,12 @@ void PSCProxyClient::handleEmulatorRequests() {
 			}
 		}
 		if(rstReq) {
-			pDebug("%s\n", "");
 			PSCProxyProtocol::prepareResetRequest(data);
 		} else {
-			pDebug("%s\n", "");
 			PSCProxyProtocol::prepareCmdRequest(data, emulatorData);
 		}
 		clientSocket->write(data);
 		read(data);
-		pDebug("%s\n", "");
 		if(!PSCProxyProtocol::parseCmdReply(data, emulatorData)) {
 			pqDebug("%s\n", "Failed to parse command reply! Changing state to CLOSED");
 			state = CLOSED;

@@ -25,7 +25,7 @@ using namespace PSCProxy;
 void PSCProxyProtocol::prepareAuth(PacketData &data, std::string const &user, std::string const &pass) {
 	unsigned int userLen = user.size();
 	unsigned int passLen = pass.size();
-	uint16_t size = sizeof(uint16_t) + 1 + (user.size() + 1) + (pass.size() + 1);
+	uint16_t size = sizeof(uint16_t) + 1 + sizeof(uint8_t) + (user.size() + 1) + (pass.size() + 1);
 	char buf[size];
 	char *c;
         unsigned int i;
@@ -35,6 +35,7 @@ void PSCProxyProtocol::prepareAuth(PacketData &data, std::string const &user, st
 	c = buf + 2; // packet type
 	*(c++) = AUTH_REQUEST;
 
+	*(c++) = protoVersion; // Protocol version
 	for(i = 0; i < userLen; i++) {
             *(c++) = user[i];
 	}
@@ -55,6 +56,11 @@ bool PSCProxyProtocol::parseAuth(PacketData const&data, std::string const &user,
 
 	int i = 0;
 	const char *c = data.getDataBuf() + 3;
+	if(*(c++) != protoVersion) {
+		pDebug("Wrong protocol version!! We use %x, they use %x\n",
+				protoVersion, (unsigned short int)*(data.getDataBuf() + 3));
+		return false;
+	}
 	while(*c != 0 || user[i] != 0) {
 		if(*(c++) != user[i++]) {
 			pDebug("Wrong user! Check failed at pos %d. (dataBuf + 3)=%s, user=%s\n",
@@ -255,10 +261,6 @@ bool PSCProxyProtocol::checkPacketSanity(PacketData const &data, PacketType type
 	c = dataBuf + 2; // Packet type
 	if(type != *(c++)) {
 		pDebug("Wrong packet type (type=%x, dataBuf+2=%x)!!\n", type, *(dataBuf + 2));
-		for(unsigned int i = 0; i < data.getSize(); i++) {
-			pqDebug("%X ", (short unsigned int)dataBuf[i]);
-		}
-		pqDebug("%s\n", "");
 		for(unsigned int i = 0; i < data.getSize(); i++) {
 			pqDebug("%X ", (short unsigned int)dataBuf[i]);
 		}

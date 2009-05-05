@@ -47,6 +47,8 @@ namespace PSCProxy {
 			static void setSize(char *buf, uint16_t size);
 			static uint16_t getSize(const char *buf);
 			static bool checkPacketSanity(PacketData const &data, PacketType type);
+			
+			static const uint8_t protoVersion = 0;
 	};
 }
 
