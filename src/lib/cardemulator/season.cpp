@@ -24,6 +24,7 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/select.h>
 #include <termios.h>
@@ -34,11 +35,12 @@
 using namespace PSCProxy;
 
 Season::Season(CardEmulatorConfig const &initConfig)
-: config(initConfig), maxBufferLen(512) {
+: config(initConfig), maxBufferLen(512), rstRequested(false), prevCARLineUp(true) {
 	pDebug("%s\n", "Creating Season instance...");
-	resetDelay = 1e6;
-	dataTXDelay = commandDelay = 2e5;
-	timeoutDelay = 1e6;
+	resetDelay = 10000;
+	dataTXDelay = 100;
+	commandDelay = 200;
+	timeoutDelay = 350000;
 
 	init();
 }
@@ -58,8 +60,8 @@ bool Season::readDataAvail() {
 	FD_SET(fileDescriptor, &rfds);
 
 	/* Wait up to five seconds. */
-	tv.tv_sec = 15;
-	tv.tv_usec = 0;
+	tv.tv_sec = 0;
+	tv.tv_usec = 1;
 
 	retval = select(fileDescriptor + 2, &rfds, NULL, NULL, &tv);
 	/* Don't rely on the value of tv now! */
@@ -74,12 +76,12 @@ bool Season::readDataAvail() {
 		}
 		return true;
 	/* FD_ISSET(0, &rfds) will be true. */
-	} else
-		printf("No data within five seconds.\n");
+	}
 
 	return false;
 }
 
+#if 0
 bool Season::getLines2() {
 	int stat;
 	int le, dtr, rts, st, sr, cts, car, cd, rng, ri, dsr;
@@ -100,28 +102,47 @@ bool Season::getLines2() {
 			le,    dtr,    rts,    st,    sr,    cts,    car,    cd,    rng,    ri,    dsr,    stat);
 	return (car? true : false);
 }
+#endif
 
 void Season::read(Data_t &result) {
 	char buf = 0;
 	int a = 0;
 	struct pollfd fd;
 
+	timeval tv, tvRef;
+	unsigned long int currTime, prevTime;
+
 	fd.fd = fileDescriptor;
 	fd.events = POLLIN;
 	result.clear();
+	gettimeofday(&tvRef, NULL);
+	prevTime = tvRef.tv_sec * 1e6 + tvRef.tv_usec;
 	for(int i = 0; i < maxBufferLen; i++) {
-		pDebug("a=%d\n", a);
 		if(1 > (a = poll(&fd, 1, timeoutDelay / 1000))) {
-			pDebug("END!! a=%d\n", a);
 			return;
 		}
 
 		if(::read(fileDescriptor, &buf, sizeof(buf)) <= 0) {
 			throw std::exception(); // TODO: Impelment exceptions
 		}
+		gettimeofday(&tv, NULL);
+		currTime = tv.tv_sec * 1e6 + tv.tv_usec;
+#if 1
+		std::cout << std::dec << tv.tv_sec  - tvRef.tv_sec << "." << tv.tv_usec << 
+			" ( " << currTime - prevTime << " ): " <<
+			std::hex << (short unsigned int)buf << " " << std::endl;
+#else
+		if((currTime - prevTime) > 100) {
+			std::cout << std::endl;
+		} else {
+			std::cout << " ";
+		}
+		std::cout << std::hex << (short unsigned)buf << std::flush;
+
+#endif
+		prevTime = currTime;
 		result.push_back(buf);
 	}
-	pDebug("Normal end: a=%d\n", a);
 
 	usleep(commandDelay);
 }
@@ -139,8 +160,27 @@ void Season::write(Data_t const &data) {
 
 		tcdrain(fileDescriptor);
 		usleep(dataTXDelay);
-
 	}
+	Data_t tmpData;
+	read(tmpData); // Read echo
+}
+
+bool Season::resetRequested() {
+	bool ret = rstRequested;
+	rstRequested = false;
+
+	return ret;
+}
+
+long unsigned Season::tick() {
+	bool CARLineUp = isCARLineUp();
+	if(CARLineUp && !prevCARLineUp) {
+		rstRequested = true;
+	}
+
+	prevCARLineUp = CARLineUp;
+
+	return 1;
 }
 
 void Season::init() {
@@ -172,4 +212,14 @@ void Season::init() {
 		throw std::exception(); // TODO: Implement exceptions
 	}
 }
+
+bool Season::isCARLineUp() {
+	int stat;
+	bool CARLineUp;
+	ioctl(fileDescriptor, TIOCMGET, &stat);
+	CARLineUp = (stat & TIOCM_CAR)? true : false;
+
+	return CARLineUp;
+}
+
 

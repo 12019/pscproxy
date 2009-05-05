@@ -21,6 +21,7 @@
 #include <cstring>
 #include <exception>
 
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -37,11 +38,13 @@ using namespace PSCProxy;
 
 Phoenix::Phoenix(CardReaderConfig const &config)
 : CardReader(config), maxBufferLen(512) {
-	resetDelay = 1e6;
-	dataTXDelay = commandDelay = 2e5;
-	timeoutDelay = 1e6;
+	resetDelay = 10000;
+	dataTXDelay = 200;
+	commandDelay = 200;
+	timeoutDelay = 350000;
 
 	init2();
+	reset();
 }
 
 #if 0
@@ -123,7 +126,6 @@ void Phoenix::init2() {
 		perror("CardReader: ");
 		throw std::exception(); // TODO: Implement exceptions
 	}
-	pDebug("i=%d\n", i);
 	if((i = tcgetattr(fileDescriptor, &ios))) {
 		perror("CardReader: ");
 		throw std::exception(); // TODO: Implement exceptions
@@ -139,12 +141,10 @@ void Phoenix::init2() {
 	ios.c_cflag &= ~CRTSCTS;
 	cfmakeraw(&ios);
 
-	pDebug("i=%d\n", i);
 	if((i = tcsetattr(fileDescriptor,TCSANOW,&ios))) {
 		perror("CardReader: ");
 		throw std::exception(); // TODO: Implement exceptions
 	}
-	pDebug("i=%d\n", i);
 }
 
 Phoenix::~Phoenix() {
@@ -174,28 +174,59 @@ void Phoenix::read(Data_t &result) {
 	int a = 0;
 	struct pollfd fd;
 
+	timeval tv, tvRef;
+	unsigned long int currTime, prevTime;
+
 	fd.fd = fileDescriptor;
 	fd.events = POLLIN;
 	result.clear();
+	gettimeofday(&tvRef, NULL);
+	prevTime = tvRef.tv_sec * 1e6 + tvRef.tv_usec;
 	for(int i = 0; i < maxBufferLen; i++) {
-		pDebug("a=%d\n", a);
+		// timeoutDelay is in microseconds. We need to convert to miliseconds for poll()
 		if(1 > (a = poll(&fd, 1, timeoutDelay / 1000))) {
-			pDebug("END!! a=%d\n", a);
 			return;
 		}
 
 		if(::read(fileDescriptor, &buf, sizeof(buf)) <= 0) {
 			throw std::exception(); // TODO: Impelment exceptions
 		}
+		gettimeofday(&tv, NULL);
+		currTime = tv.tv_sec * 1e6 + tv.tv_usec;
+#if 1
+		std::cout << std::dec << tv.tv_sec  - tvRef.tv_sec << "." << tv.tv_usec << 
+			" ( " << currTime - prevTime << " ): " <<
+			std::hex << (short unsigned int)buf << " " << std::endl;
+#else
+		if((currTime - prevTime) > 100) {
+			std::cout << std::endl;
+		} else {
+			std::cout << " ";
+		}
+		std::cout << std::hex << (short unsigned)buf << std::flush;
+
+#endif
+		prevTime = currTime;
 		result.push_back(buf);
 	}
-	pDebug("Normal end: a=%d\n", a);
 
 	usleep(commandDelay);
 }
 
 void Phoenix::write(Data_t const &data) {
-	// TODO: Implement it
+	tcflush(fileDescriptor, TCIOFLUSH);
+	unsigned size = data.size();
+	for(unsigned i = 0; i < size; i++) {
+		char ch = data[i];
+		pDebug("About to write %02X\n", ch);
+		if(-1 == ::write(fileDescriptor, &ch, sizeof(ch))) {
+			perror("Phoenix");
+			throw std::exception(); // TODO: Impelment exceptions
+		}
+
+		tcdrain(fileDescriptor);
+		usleep(dataTXDelay);
+	}
 }
 
 void Phoenix::setctrl(const int ctrl) {
@@ -205,3 +236,4 @@ void Phoenix::setctrl(const int ctrl) {
 	tmpCtrl |= ctrl;
 	ioctl(fileDescriptor, TIOCMSET, &tmpCtrl);
 }
+

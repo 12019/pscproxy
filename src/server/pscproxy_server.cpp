@@ -100,12 +100,14 @@ void PSCProxyServer::Client::handleClientRequests() {
 
 		if(PSCProxyProtocol::parseResetRequest(data)) {
 			pDebug("%s\n", "Looks like Reset Request. Getting atr from the reader... ");
-			Data_t const &atr = reader->getAtr();
+			//Data_t const &atr = reader->getAtr();
+			Data_t const &atr = reader->reset();
 			pqDebug("%s\n", "Done.");
 			pDebug("%s\n", "Now preparing reset reply... ");
 			PSCProxyProtocol::prepareResetReply(data, atr);
 			pqDebug("%s\n", "Done.");
 			pDebug("%s\n", "Writing reset reply to the client socket... ");
+			//usleep(200000);
 			write(data);
 			pqDebug("%s\n", "Done.");
 		} else if(PSCProxyProtocol::parseCmdRequest(data, cardData)) {

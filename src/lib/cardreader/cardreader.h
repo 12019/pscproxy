@@ -15,7 +15,7 @@ namespace PSCProxy {
 			Data_t const &getAtr() const { return atr; }
 
 		protected:
-			CardReaderConfig const &config;
+			CardReaderConfig config;
 			Data_t atr;
 			
 			unsigned int resetDelay;

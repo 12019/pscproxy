@@ -69,30 +69,13 @@ int main(int argc, char *argv[]) {
 	enableSignalHandling();
 
 	std::auto_ptr<PSCProxy::CardReader> reader(new PSCProxy::DummyCardReader());
+	//std::auto_ptr<PSCProxy::CardReader> reader(new PSCProxy::Phoenix(
+	//			PSCProxy::CardReaderConfig("/etc/pscproxy_server.conf")));
 	std::auto_ptr<PSCProxy::ServerSocket> socket(new PSCProxy::ServerSocket(PSCProxy::defaultPort));
 
 	std::auto_ptr<PSCProxy::ProxyServer> server(new PSCProxy::PSCProxyServer(reader.get(), socket.get()));
 
 	server->run();
-
-	/*
-	PSCProxy::ServerSocket socket(10000);
-	do {
-		if(socket.clientWaitingForConnection()) {
-			pDebug("%s\n", "Client is waiting for a connection!");
-			pDebug("%s\n", "Writing to the client...");
-			PSCProxy::PacketData data("Hello world");
-			socket << data;
-			pDebug("%s\n", "Now reading from client...");
-			socket.read(data);
-			pDebug("Read %d bytes. The data is <%s>\n", data.getSize(), data.getData().c_str());
-			break;
-		}
-	} while(1);
-	return 0;
-	PSCProxy::Phoenix reader(PSCProxy::CardReaderConfig("aaa.conf"));
-	reader.reset();
-	*/
 
 	return 0;
 }

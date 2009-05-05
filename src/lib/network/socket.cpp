@@ -30,12 +30,10 @@
 using namespace PSCProxy;
 
 Socket::Socket() {
-	pDebug("%s...\n", "Creating instance of Socket");
 	sockFileDesc = ::socket(AF_INET, SOCK_STREAM, 0);
 }
 
 Socket::~Socket() {
-	pDebug("%s...\n", "Distroyng instance of Socket");
 	if(0 != close(sockFileDesc)) {
 		perror("Error while closing client socket");
 	}
@@ -46,17 +44,12 @@ int Socket::write(int fileDescriptor, PacketData const &data) {
 	unsigned int s = data.getSize();
 	int rc;
 	while(written < s) {
-		pDebug("%s\n", "Writing...");
 		rc = ::write(fileDescriptor, data.getDataBuf(), data.getSize());
-		pDebug("%s\n", "Done.");
 		if(rc < 0) {
 			throw std::exception(); // TODO: Implement exceptions
 		}
 		written += rc;
-		pDebug("Written %u. s=%u, so still %u bytes to go...\n", written, s, s - written);
 	}
-	pDebug("data.getDataBuf()[0]=%x, data.getDataBuf()[1]=%x, data.getDataBuf()[2]=%x\n",
-			data.getDataBuf()[0], data.getDataBuf()[1], data.getDataBuf()[2]);
 
 	return written;
 }
@@ -100,13 +93,10 @@ int Socket::read(int fileDescriptor, PacketData &data, unsigned int size) {
 			}
 		}
 
-		pDebug("Got %u. size=%u, so still %u bytes to go... rc=%d\n", r, size, size - r, rc);
 		usleep(10e3); // 1 / 1000[sec]
 	}
 
 	data.setData(buf, size);
-	pDebug("data.getSize()=%u, data.getDataBuf()[0]=%x, data.getDataBuf()[1]=%x, data.getDataBuf()[2]=%x\n",
-			data.getSize(), data.getDataBuf()[0], data.getDataBuf()[1], data.getDataBuf()[1]);
 
 	return r;
 }

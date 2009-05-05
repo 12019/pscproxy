@@ -57,7 +57,8 @@ bool PSCProxyProtocol::parseAuth(PacketData const&data, std::string const &user,
 	const char *c = data.getDataBuf() + 3;
 	while(*c != 0 || user[i] != 0) {
 		if(*(c++) != user[i++]) {
-			pDebug("Wrong user! Check failed at pos %d. (dataBuf + 3)=%s, user=%s\n", i - 1, data.getDataBuf() + 3, user.c_str());
+			pDebug("Wrong user! Check failed at pos %d. (dataBuf + 3)=%s, user=%s\n",
+					i - 1, data.getDataBuf() + 3, user.c_str());
 			return false;
 		}
 	}
@@ -94,7 +95,6 @@ bool PSCProxyProtocol::parseAuthReply(PacketData const &data) {
 	}
 
 	const char *c = data.getDataBuf() + 3;
-	pDebug("Returning: %s\n", (AUTHORIZED == *c)? "AUTHORIZED" : "UNAUTHORIZED");
 	return (AUTHORIZED == *c)? true : false;
 }
 
@@ -128,7 +128,6 @@ void PSCProxyProtocol::prepareResetReply(PacketData &data, Data_t const &atr) {
 }
 
 bool PSCProxyProtocol::parseResetReply(PacketData const &data, Data_t &buf) {
-	pDebug("%s\n", "Checking if RESET_REPLY...");
 	if(!checkPacketSanity(data, RESET_REPLY)) {
 		pDebug("%s\n", "Paktet doesn't look sane..");
 		return false;
@@ -141,7 +140,6 @@ bool PSCProxyProtocol::parseResetReply(PacketData const &data, Data_t &buf) {
 		buf.push_back(*(c++));
 	}
 
-	pDebug("%s\n", "RESET_REPLY.");
 	return true;
 }
 
@@ -162,7 +160,6 @@ void PSCProxyProtocol::prepareCmdRequest(PacketData &data, Data_t const &cmd) {
 }
 
 bool PSCProxyProtocol::parseCmdRequest(PacketData const &data, Data_t &cmd) {
-	pDebug("%s\n", "Checking if CMD_REQUEST...");
 	if(!checkPacketSanity(data, CMD_REQUEST)) {
 		pDebug("%s\n", "Paktet doesn't look sane..");
 		return false;
@@ -175,7 +172,6 @@ bool PSCProxyProtocol::parseCmdRequest(PacketData const &data, Data_t &cmd) {
 		cmd.push_back(*(c++));
 	}
 
-	pDebug("%s\n", "CMD_REQUEST.");
 	return true;
 }
 
@@ -195,7 +191,6 @@ void PSCProxyProtocol::prepareCmdReply(PacketData &data, Data_t const &cmdReply)
 }
 
 bool PSCProxyProtocol::parseCmdReply(PacketData const &data, Data_t &cmdReply) {
-	pDebug("%s\n", "Checking if CMD_REPLY...");
 	if(!checkPacketSanity(data, CMD_REPLY)) {
 		pDebug("%s\n", "Paktet doesn't look sane..");
 		return false;
@@ -207,7 +202,6 @@ bool PSCProxyProtocol::parseCmdReply(PacketData const &data, Data_t &cmdReply) {
 		cmdReply.push_back(*(c++));
 	}
 
-	pDebug("%s\n", "CMD_REPLY.");
 	return true;
 }
 
@@ -223,7 +217,6 @@ int PSCProxyProtocol::read(PacketData &data, int socket) {
 	uint16_t size = getSize(header.getDataBuf());
 	if(size > 3) {
 		PacketData body;
-		pDebug("Some longer packet. size=%u, so still %u bytes to read.\n", size, size - 3);
 		rc = Socket::read(socket, body, size - 3);
 		if(0 > rc) {
 			pDebug("Error while reading from socket! Returning rc=%d\n", rc);
@@ -261,7 +254,15 @@ bool PSCProxyProtocol::checkPacketSanity(PacketData const &data, PacketType type
 
 	c = dataBuf + 2; // Packet type
 	if(type != *(c++)) {
-		pDebug("Wrong packet type (%x)!!", *(dataBuf + 2));
+		pDebug("Wrong packet type (type=%x, dataBuf+2=%x)!!\n", type, *(dataBuf + 2));
+		for(unsigned int i = 0; i < data.getSize(); i++) {
+			pqDebug("%X ", (short unsigned int)dataBuf[i]);
+		}
+		pqDebug("%s\n", "");
+		for(unsigned int i = 0; i < data.getSize(); i++) {
+			pqDebug("%X ", (short unsigned int)dataBuf[i]);
+		}
+		pqDebug("%s\n", "");
 		return false;
 	}
 

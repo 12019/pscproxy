@@ -47,7 +47,6 @@ bool PSCProxyClient::tick() {
 				break;
 
 			case AUTHORIZED:
-				pDebug("%s\n", " IN AUTHORIZED STATE!!");
 				emulator->tick();
 				handleEmulatorRequests();
 				break;
@@ -118,29 +117,38 @@ void PSCProxyClient::handleEmulatorRequests() {
 		emulator->write(atr);
 		pqDebug("%s\n", "Done.");
 	} else if(emulator->readDataAvail()) {
-		pDebug("%s\n", "Requested command! Handling it...");
 		PacketData data;
 		Data_t emulatorData;
-		pDebug("%s\n", "Reading CMD from emulator... ");
 		emulator->read(emulatorData);
-		pqDebug("%s\n", "Done.");
-		pDebug("%s\n", "Preparing CMD Request... ");
-		PSCProxyProtocol::prepareCmdRequest(data, emulatorData);
-		pqDebug("%s\n", "Done.");
-		pDebug("%s\n", "Writing CMD Request to the Server... ");
+#ifdef DEBUG
+		pDebug("%s", "STB is requesting: ");
+		for(unsigned int i = 0; i < emulatorData.size(); i++) {
+			pqDebug("%X ", emulatorData[i]);
+		}
+		pqDebug("%s\n", "");
+#endif // DEBUG
+		bool rstReq = false;
+		if(1 == emulatorData.size()) {
+			if(0 == emulatorData[0]) {
+				rstReq = true;
+			}
+		}
+		if(rstReq) {
+			pDebug("%s\n", "");
+			PSCProxyProtocol::prepareResetRequest(data);
+		} else {
+			pDebug("%s\n", "");
+			PSCProxyProtocol::prepareCmdRequest(data, emulatorData);
+		}
 		clientSocket->write(data);
-		pqDebug("%s\n", "Done.");
-		pDebug("%s\n", "Reading CMD Reply from the Server... ");
 		read(data);
-		pqDebug("%s\n", "Done.");
+		pDebug("%s\n", "");
 		if(!PSCProxyProtocol::parseCmdReply(data, emulatorData)) {
 			pqDebug("%s\n", "Failed to parse command reply! Changing state to CLOSED");
 			state = CLOSED;
 			return;
 		}
-		pDebug("%s\n", "Writing CMD reply to Emulator... ");
 		emulator->write(emulatorData);
-		pqDebug("%s\n", "Done.");
 	}
 }
 
