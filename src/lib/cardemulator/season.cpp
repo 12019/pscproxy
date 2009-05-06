@@ -37,8 +37,8 @@ using namespace PSCProxy;
 Season::Season(CardEmulatorConfig const &initConfig)
 : config(initConfig), maxBufferLen(512), rstRequested(false), prevCARLineUp(true) {
 	pDebug("%s\n", "Creating Season instance...");
-	resetDelay = 10000;
-	dataTXDelay = 100;
+	resetDelay = config.getResetDelay();
+	dataTXDelay = config.getDataTXDelay();
 	commandDelay = 200;
 	timeoutDelay = 350000;
 
@@ -184,11 +184,11 @@ long unsigned Season::tick() {
 }
 
 void Season::init() {
-	pDebug("Initiating %s serial port\n", config.getDevFilename());
+	pDebug("Initiating %s serial port\n", config.getDevName());
 	struct termios ios;
 	int i = 0;
 	
-	if(0 > (fileDescriptor = open(config.getDevFilename(), O_RDWR))) {
+	if(0 > (fileDescriptor = open(config.getDevName(), O_RDWR))) {
 		perror("Season: ");
 		throw std::exception(); // TODO: Implement exceptions
 	}

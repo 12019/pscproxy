@@ -35,6 +35,7 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #include "debug.h"
 #include "dummy_card_emulator.h"
 #include "pscproxy_client.h"
+#include "card_emulator_config.h"
 //#include "season.h"
 
 static PSCProxy::ProxyClient *client;
@@ -74,9 +75,7 @@ int main(int argc, char *argv[]) {
 #endif // HAVE_GNUTLS
 	enableSignalHandling();
 
-	PSCProxy::CardEmulator *emulator = new PSCProxy::DummyCardEmulator();
-	//PSCProxy::CardEmulator *emulator = new PSCProxy::Season(
-	//		PSCProxy::CardEmulatorConfig("~/.pscproxy_client.conf"));
+	PSCProxy::CardEmulator *emulator = PSCProxy::CardEmulatorConfig("/home/patryk/.pscproxy_client.conf").createNewEmulator();
 	PSCProxy::ClientSocket *socket = new PSCProxy::ClientSocket("127.0.0.1", PSCProxy::defaultPort);
 	client = new PSCProxy::PSCProxyClient(emulator, socket);
 	client->run();

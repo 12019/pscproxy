@@ -26,7 +26,7 @@
 using namespace PSCProxy;
 
 DummyCardEmulator::DummyCardEmulator() {
-	pDebug("%s\n", "Creating instance of DummyCardReader");
+	pDebug("%s\n", "Creating instance of DummyCardEmulator");
 	lastDataAvailTime = time(NULL);
 	resetAlreadyRequested = false;
 	srand(lastDataAvailTime);
@@ -37,7 +37,7 @@ DummyCardEmulator::DummyCardEmulator() {
 }
 
 DummyCardEmulator::~DummyCardEmulator() {
-	pDebug("%s\n", "Destroing instance of DummyCardReader");
+	pDebug("%s\n", "Destroing instance of DummyCardEmulator");
 }
 
 bool DummyCardEmulator::readDataAvail() {
